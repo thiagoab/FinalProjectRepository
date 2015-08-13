@@ -42,24 +42,16 @@ int main()
 	glewExperimental = GL_TRUE;
 	// Initialize GLEW to setup the OpenGL Function pointers
 	if (glewInit() != GLEW_OK)
-	{
+{
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		return -1;
 	}
 
-	// Define the viewport dimensions
-	glViewport(0, 0, WIDTH, HEIGHT);
-
-	// Game loop
-	while (!glfwWindowShouldClose(window))
-	{
-		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-		glfwPollEvents();
-
-		// Render
-		// Clear the colorbuffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowPosition(500, 500);//optional
+	glutInitWindowSize(800, 600); //optional
+	glutCreateWindow("OpenGL First Window");
 
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
