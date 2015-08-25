@@ -1,33 +1,29 @@
 #include <iostream>
 
-// GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include "gameClass.h"
 
-// GLFW
-#include <GLFW/glfw3.h>
-
-
-// Function prototypes
+// Function prototypes 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
+
+gameClass gauntlet(WIDTH, HEIGHT);
 
 // The MAIN function, from here we start the application and run the game loop
 int main()
 {
 	std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
 	// Init GLFW
-	glfwInit();
+	glfwInit(); 
 	// Set all the required options for GLFW
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); 
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Gauntlet", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -47,22 +43,38 @@ int main()
 		return -1;
 	}
 
+	//Turn on aplha blending for transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Define the viewport dimensions
 	glViewport(0, 0, WIDTH, HEIGHT);
+
+	float deltaTime = 0.0f;
+	float prevFrameTime = 0.0f;
+
+	gauntlet.initializeGame();
 
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
+		float currentFrameTime = glfwGetTime();
+		deltaTime = currentFrameTime - prevFrameTime;
+		prevFrameTime = currentFrameTime;
+
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
-
-		// Render
+		gauntlet.processInput(deltaTime);
+		
+		gauntlet.update(deltaTime);
 		// Clear the colorbuffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		gauntlet.render();
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
+		
 	}
 
 	// Terminate GLFW, clearing any resources allocated by GLFW.
@@ -76,4 +88,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	std::cout << key << std::endl;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	if (key >= 0 && key < 1024) {
+		if (action == GLFW_PRESS)
+			gauntlet.setKeys(key, true);
+		else if (action == GLFW_RELEASE)
+			gauntlet.setKeys(key, false);
+	}
 }
