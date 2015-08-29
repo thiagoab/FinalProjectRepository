@@ -18,13 +18,14 @@ private:
 	int kills;
 	PlayerType speciality;
 
-/*
+
 	int nrActions = 1;
 	int nrFrames = 8;
 	int nrDirections = 8;
-	char filepath[50] = "textures/dwarf/";
+	char filepath[100];
+	int frameIndex;
 
-	map <string, textureClass[8]> directionMap;	*/
+	/*map <string, textureClass[8]> directionMap;	*/
 	
 			
 public:
@@ -46,6 +47,12 @@ public:
 
 	//float getSpeed();
 
+	char* getWindDirection(int rotate);
+	void playerClass::getPlayerTexture(char action[10], int frame);
+	void resetIndex() { frameIndex = 0; }
+	void increaseIndex();
+
+	
 };		
 
 
