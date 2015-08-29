@@ -6,9 +6,13 @@
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
 
-gameClass gauntlet(WIDTH, HEIGHT);
+//#define MAP_WIDTH 800
+//#define MAP_HEIGHT 600
+//#define WINDOW_WIDTH 800
+//#define WINDOW_HEIGHT 600
+
+gameClass gauntlet;
 
 // The MAIN function, from here we start the application and run the game loop
 int main()
@@ -23,7 +27,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); 
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Gauntlet", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Gauntlet", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -48,7 +52,7 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Define the viewport dimensions
-	glViewport(0, 0, WIDTH, HEIGHT);
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	float deltaTime = 0.0f;
 	float prevFrameTime = 0.0f;
@@ -71,6 +75,7 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		
 		gauntlet.render();
 		// Swap the screen buffers
 		glfwSwapBuffers(window);

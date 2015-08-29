@@ -1,5 +1,5 @@
 #include "playerClass.h"
-
+#include "resourceManagerClass.h"
 
 
 playerClass::playerClass()
@@ -10,6 +10,7 @@ playerClass::playerClass()
 	keys = 0;
 	kills = 0;
 	speciality = warrior;
+
 	
 }
 
@@ -45,28 +46,40 @@ void playerClass::Draw(SpriteRenderer & renderer)
 	creatureClass::Draw(renderer);
 }
 
-//void playerClass::hugWall(tileClass wall) {
+//void playerClass::loadPlayerTextures() {
+//	char action[10] = "";
 //
-//	switch (int (this->tile.getRotation())) {
-//	case 0 :
-//		this->tile.resetPos({ this->tile.getPos().x, wall.getPos().y + wall.getSize().y });
-//		break;
-//		
-//	case 90:
-//		this->tile.resetPos({ wall.getPos().x - this->tile.getSize().x, this->tile.getPos().y });
-//		break;
 //
-//	case 180:
-//		this->tile.resetPos({ this->tile.getPos().x, wall.getPos().y - this->tile.getSize().y });
-//		break;
 //
-//	case 270:
-//		this->tile.resetPos({ wall.getPos().x + wall.getSize().x, this->tile.getPos().y });
-//		break;
+//	for (int act = 0; act < nrActions; act++) {		
+//
+//		switch (act) {
+//		case 0: 
+//			strcat(action, "walking ");
+//			break;
+//		}
+//
+//		strcat(filepath, action);
+//
+//		for (int direction = 0; direction < nrDirections; direction++) {
+//			char d[3] = "";
+//
+//			if (int(tile.getRotation() >= 45) && int(tile.getRotation() <= 135))
+//				strcat(d, "n");
+//			if (int(tile.getRotation() >= 225) && int(tile.getRotation() <= 315))
+//				strcat(d, "s");
+//			if (int(tile.getRotation() >= 135) && int(tile.getRotation() <= 225))
+//				strcat(d, "w");
+//			if (int(tile.getRotation() >= 225) && int(tile.getRotation() <= 45))
+//				strcat(d, "e");
+//
+//			strcat(filepath, d);
+//
+//			for (int i = 0; i < nrFrames; i++) {
+//				char index[2] = "";
+//				strcpy(index, i );
+//				resourceManagerClass::LoadTexture("textures/dwarf/walking s0000.png", GL_TRUE, action);
+//			}
+//		}
 //	}
-//}
-
-//float playerClass::getSpeed()
-//{
-//	return creatureClass::getSpeed();
 //}

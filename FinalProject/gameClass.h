@@ -19,7 +19,7 @@
 class gameClass
 {
 public:
-	gameClass(int width, int height);
+	gameClass();
 	~gameClass();
 
 	void initializeGame();
@@ -35,12 +35,11 @@ public:
 	void setKeysPressed(int i, bool flip) { keysPressed[i] = flip; }
 
 private:
-	int width;
-	int height;
+	
 	bool keys[1024], keysPressed[1024];
 	float spawnTimer, projectileTimer;
-	glm::vec2 viewPort;
-
+	glm::vec2 renderingPort;
+		
 	mapClass mapLevel1;
 
 	SpriteRenderer *renderer;
@@ -51,8 +50,7 @@ private:
 
 	void spawnEnemies();
 	void moveEnemies(float deltaTime);
-	bool isOnScreen(int objX, int objY);
-
+	
 	void playerPickedUpItem(mapElementClass item);
 
 	void fireProjectile();

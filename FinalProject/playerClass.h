@@ -1,6 +1,7 @@
 #pragma once
 #include "creatureClass.h"
 #include "textureClass.h"
+#include <map>
 
 #define PLAYER_ATTACK_RANGE 10
 
@@ -16,6 +17,15 @@ private:
 	int keys;
 	int kills;
 	PlayerType speciality;
+
+/*
+	int nrActions = 1;
+	int nrFrames = 8;
+	int nrDirections = 8;
+	char filepath[50] = "textures/dwarf/";
+
+	map <string, textureClass[8]> directionMap;	*/
+	
 			
 public:
 	playerClass();
@@ -31,6 +41,8 @@ public:
 	void incrementLives(int i) { lives += i; }
 	void incrementTreasure(int i) { treasure += i; }
 	void incrementKills() { kills += 1; }
+
+	void loadPlayerTextures();
 
 	//float getSpeed();
 

@@ -70,7 +70,16 @@ void tileClass::setRotation(float newRotation)
 	rotation = newRotation;
 }
 
-void tileClass::Draw(SpriteRenderer& renderer)
+void tileClass::Draw(SpriteRenderer& renderer) // virtual function
 {
 	//renderer.DrawSprite(sprite, pos, size, 0.0f);
+}
+
+bool tileClass::isOnScreen(glm::vec2 renderingPort) {
+
+	if (pos.x > renderingPort.x-40 && pos.x < renderingPort.x + WINDOW_WIDTH) // check if spawner is on screen
+	if (pos.y > renderingPort.y-60 && pos.y < renderingPort.y + WINDOW_HEIGHT)
+		return true;
+
+	return false;
 }

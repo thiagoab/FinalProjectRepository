@@ -16,8 +16,8 @@ public:
 	mapClass();
 	~mapClass();
 
-	void loadMapInfo(string file, int screenWidth, int screenHeight); // load characters from text file into mapInfo vector
-	void prepareMapObjects(int screenWidth, int screenHeight);
+	void loadMapInfo(string file); // load characters from text file into mapInfo vector
+	void prepareMapObjects();
 	void Draw(SpriteRenderer &renderer);
 		
 	float getTileWidth() { return tileWidth; }

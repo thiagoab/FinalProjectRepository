@@ -12,7 +12,7 @@ mapClass::~mapClass()
 {
 }
 
-void mapClass::loadMapInfo(string file, int screenWidth, int screenHeight)
+void mapClass::loadMapInfo(string file)
 {
 	char tileChar;
 	string line;
@@ -31,31 +31,35 @@ void mapClass::loadMapInfo(string file, int screenWidth, int screenHeight)
 			mapInfo.push_back(fileLine); //copy fileLine row-by-row into 2d vector called mapInfo
 		}
 
-		prepareMapObjects(screenWidth, screenHeight);
+		prepareMapObjects();
 	}
 }
 
-void mapClass::prepareMapObjects(int screenWidth, int screenHeight)
+void mapClass::prepareMapObjects()
 {
 	int fileRows = mapInfo.size();
-	tileHeight = screenHeight / float(fileRows) *2.1 ; // 32 = 640 / 20	
+	tileHeight = 60;// MAP_HEIGHT / float(fileRows);
 
 	int fileColumns = mapInfo[0].size();
-	tileWidth = screenWidth / float(fileColumns) * 1.05 ; // 32 = 800 / 25	
+	tileWidth = 40;// MAP_WIDTH / float(fileColumns);
 
 	for (int row = 0; row < fileRows ; row++) { // iterate through the 2D vector containing mapInfo (ascii characters)
 		for (int column = 0; column < fileColumns; column++)	{
 
-			glm::vec2 pos(int (column * tileWidth - column*2) , int((row) * tileHeight - row *30) );
+			glm::vec2 pos(int (column * tileWidth) , int((row) * tileHeight - row *25 ) );
 			glm::vec2 size(tileWidth, tileHeight);
 
-			mapElementClass floorT({ pos.x, pos.y - 15 }, size, resourceManagerClass::GetTexture("floor"), floorTile, { 1.0f, 1.0f, 1.0f });
+			mapElementClass floorT({ pos.x, pos.y }, size, resourceManagerClass::GetTexture("floor"), floorTile, { 1.0f, 1.0f, 1.0f });
 			floors.push_back(floorT);
 
 			if (mapInfo[row][column] == 'w') {
-				mapElementClass element(pos, size, resourceManagerClass::GetTexture("wall"), wall, { 1.0f, 1.0f, 1.0f }, 0, { 0, 25 }, { 0, 0 });
+				mapElementClass element({ pos.x, pos.y-15}, { size.x, size.y+15 }, resourceManagerClass::GetTexture("wall"), wall, { 1.0f, 1.0f, 1.0f }, 0, { 0, 25 }, { 0, 0 });
 				walls.push_back(element);				
 			} 
+			if (mapInfo[row][column] == '2') {
+				mapElementClass element(pos, size, resourceManagerClass::GetTexture("wall"), wall, { 1.0f, 1.0f, 1.0f }, 0, { 0, 25 }, { 0, 0 });
+				walls.push_back(element);
+			}
 			else if (mapInfo[row][column] == 'f') {
 				mapElementClass foodT(pos, size , resourceManagerClass::GetTexture("food"), food, { 1.0f, 1.0f, 1.0f}, 0, { 30, 55 }, { -30, -15 });
 				pickups.push_back(foodT);
@@ -80,25 +84,33 @@ void mapClass::prepareMapObjects(int screenWidth, int screenHeight)
 
 void mapClass::Draw(SpriteRenderer & renderer)
 {
-	/*for (int i = floors.size() - 1; i >= 0; i--) {
-		floors[i].Draw(renderer);
-	}*/
+	glm::vec2 renderingPort;
+	renderer.getCam(renderingPort.x, renderingPort.y);
+	renderingPort *= -1;
+
+	for (int i = floors.size() - 1; i >= 0; i--) {
+		if (floors[i].tile.isOnScreen(renderingPort))
+			floors[i].Draw(renderer);
+	}
 
 	//glDepthMask(false);
 
-	for (int i = 0; i <floors.size(); i++) {
+	/*for (int i = 0; i <floors.size(); i++) {
 		floors[i].Draw(renderer);
-	}
+	}*/
 	
 	for (int i = 0 ; i <walls.size(); i++) {
-		walls[i].Draw(renderer);
+		if (walls[i].tile.isOnScreen(renderingPort))
+			walls[i].Draw(renderer);
 	}
 	
 	for (int i = 0; i <pickups.size(); i++) {
-		pickups[i].Draw(renderer);
+		if (pickups[i].tile.isOnScreen(renderingPort))
+			pickups[i].Draw(renderer);
 	}
 	
 	for (int i = 0; i <spawns.size(); i++) {
+		if (spawns[i].tile.isOnScreen(renderingPort))
 		spawns[i].Draw(renderer);
 	}
 }
