@@ -14,6 +14,7 @@
 #include <glm\glm.hpp>
 #include "spawnerClass.h"
 #include "projectileClass.h"
+#include "TextRenderer.h"
 
 
 class gameClass
@@ -42,6 +43,7 @@ private:
 		
 	mapClass mapLevel1;
 
+	TextRenderer *textRenderer;
 	SpriteRenderer *renderer;
 	playerClass *player;
 	projectileClass *activeProjectile;

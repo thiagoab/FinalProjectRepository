@@ -46,6 +46,19 @@ void playerClass::Draw(SpriteRenderer & renderer)
 	creatureClass::Draw(renderer);
 }
 
+
+std::string playerClass::getPlayerType(void)
+{
+	switch (speciality)
+	{
+	case 0:
+		return "Warrior";
+	default:
+		return "";
+	}
+}
+
+
 //void playerClass::loadPlayerTextures() {
 //	char action[10] = "";
 //

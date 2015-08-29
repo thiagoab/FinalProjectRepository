@@ -30,9 +30,17 @@ gameClass::~gameClass()
 void gameClass::initializeGame()
 {
 	resourceManagerClass::LoadShader("shaders/sprite.vs", "shaders/sprite.frag", nullptr, "sprite");
+	resourceManagerClass::LoadShader("shaders/text.vs", "shaders/text.frag", nullptr, "text");
+
+
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), static_cast<GLfloat>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
+	glm::mat4 projectionText = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT), -1.0f, 1.0f);
+
 	resourceManagerClass::GetShader("sprite").Use().SetInteger("sprite", 0);
 	resourceManagerClass::GetShader("sprite").SetMatrix4("projection", projection);
+	resourceManagerClass::GetShader("text").Use().SetInteger("text", 0);
+	resourceManagerClass::GetShader("text").SetMatrix4("projection", projectionText);
+
 
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Stone Block Tall.png", GL_TRUE, "wall");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Dirt Block2.png", GL_TRUE, "floor");	
@@ -46,6 +54,7 @@ void gameClass::initializeGame()
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Character Boy.png", GL_TRUE, "player");
 
 	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"));
+	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));
 	
 	mapLevel1.loadMapInfo("maps/map2.txt");
 
@@ -59,6 +68,8 @@ void gameClass::render()
 	//renderer->DrawSprite()
 	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(0, 0), glm::vec2(width, height));
 	//renderer->camera();
+
+	
 	mapLevel1.Draw(*renderer);
 	player->Draw(*renderer);
 
@@ -71,7 +82,27 @@ void gameClass::render()
 		projectiles[i].Draw(*renderer);
 	}
 	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	textRenderer->DrawText(player->getPlayerType(), 10, WINDOW_HEIGHT  - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(player->getPlayerType(), 11, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	
+	textRenderer->DrawText("Score:", 150, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Score:", 151, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 233, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 234, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
+	textRenderer->DrawText("Health:", 300, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Health:", 301, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	
+	textRenderer->DrawText(std::to_string(player->getHealth()), 396, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getHealth()), 397, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
+	textRenderer->DrawText("Level:", WINDOW_WIDTH - 150, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Level:", WINDOW_WIDTH - 149, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
 }
+
 
 void gameClass::update(float deltaTime) {
 		

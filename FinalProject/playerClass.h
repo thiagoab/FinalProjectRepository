@@ -44,6 +44,8 @@ public:
 
 	void loadPlayerTextures();
 
+	std::string getPlayerType(void);
+
 	//float getSpeed();
 
 };		
