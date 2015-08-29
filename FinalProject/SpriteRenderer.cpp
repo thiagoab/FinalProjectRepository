@@ -5,6 +5,11 @@ SpriteRenderer::SpriteRenderer(Shader &shader)
 {
 	this->shader = shader;
 	this->initRenderData();
+	camX = 0.0f, camY = 0.0f;
+
+	cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 SpriteRenderer::~SpriteRenderer()
@@ -12,11 +17,36 @@ SpriteRenderer::~SpriteRenderer()
 	glDeleteVertexArrays(1, &this->quadVAO);
 }
 
+
+void SpriteRenderer::camera() {
+	
+
+	//glm::mat4 view;
+	//view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	//// Get the uniform locations
+	//GLint viewLoc = glGetUniformLocation(shader.ID, "view");
+	//// Pass the matrices to the shader
+	//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+
+	//glm::mat4 projection;
+	//projection = glm::perspective(45.0f, (GLfloat)800 / (GLfloat)600, 1.0f, 100.0f);
+	//GLint projLoc = glGetUniformLocation(shader.ID, "projection");
+	//glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	//glMatrixMode(GL_MODELVIEW);
+	//glTranslatef(100, 100, -3);
+	
+}
+
 void SpriteRenderer::DrawSprite(textureClass &texture, glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec3 color)
 {
 	// Prepare transformations
 	this->shader.Use();
 	glm::mat4 model;
+	position.x = position.x + camX;
+	position.y = position.y + camY;
+	
+	
 	model = glm::translate(model, glm::vec3(position, 0.0f));  // First translate (transformations are: scale happens first, then rotation and then finall translation happens; reversed order)
 
 	model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); // Move origin of rotation to center of quad
