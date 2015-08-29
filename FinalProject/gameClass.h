@@ -35,12 +35,14 @@ public:
 	void setKeys(int i, bool flip) { keys[i] = flip; }
 	void setKeysPressed(int i, bool flip) { keysPressed[i] = flip; }
 
+
 private:
 	
 	bool keys[1024], keysPressed[1024];
 	float spawnTimer, projectileTimer;
 	glm::vec2 renderingPort;
-		
+	float animationTime;
+
 	mapClass mapLevel1;
 
 	TextRenderer *textRenderer;

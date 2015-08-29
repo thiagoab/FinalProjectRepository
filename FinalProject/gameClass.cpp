@@ -11,6 +11,7 @@
 #define BULLET_SPEED 200
 #define BULLET_POWER 10
 #define FIRE_RATE 0.15
+#define ANIMATION_FRAME_TIME 0.075
 
 gameClass::gameClass()
 {
@@ -18,6 +19,7 @@ gameClass::gameClass()
 	projectileTimer = 0.0f;	
 	activeProjectile = new projectileClass();
 	renderingPort = { 0.0f, 0.0f };
+	animationTime = 0.0f;
 }
 
 gameClass::~gameClass()
@@ -51,16 +53,25 @@ void gameClass::initializeGame()
 	resourceManagerClass::LoadTexture("textures/skull.png", GL_TRUE, "enemy");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Tree Short.png", GL_TRUE, "projectile");
 	
-	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Character Boy.png", GL_TRUE, "player");
-
 	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"));
 	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));
 	
 	mapLevel1.loadMapInfo("maps/map2.txt");
 
-	//                       (texture,                              health, speed, power,       starting pos,      size, rotation, collisionOffsetXY, collisionOffsetZW, color)
-	player = new playerClass(resourceManagerClass::GetTexture("player"), 100, PLAYER_SPEED, 7, { WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 }, { 55, 110 }, 0, { 10, 80 }, { -10, 0 }, { 1, 1, 1 });
+	resourceManagerClass::LoadTexture("textures/dwarf/walking s0004.png", GL_TRUE, "player");
+	                       
+	player = new playerClass(resourceManagerClass::GetTexture("player"),	// texture    
+		100,																// health
+		PLAYER_SPEED,														// speed
+		7,																	// attack power
+		{ WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 },							// starting position
+		{ 120, 110 },														// size in pixels (width, height)
+		0,																	// rotation (0 - 360 degrees, in 45 degree increments
+		{ 10, 80 },															// collisionOffsetXY : adjustment to collision box (left upper corner)
+		{ -10, 0 },															// collisionOffsetZW : adjustment to collision box (right lower corner)
+		{ 1, 1, 1 });														// color
 		
+	player->loadPlayerTextures();
 }
 
 void gameClass::render()
@@ -215,15 +226,13 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	if (keys[GLFW_KEY_UP]) {
 		newPos ={newPos.x + 0, newPos.y + velocity*-1 };
 		rotat += 90;
-		nrKeys++;
-		
+		nrKeys++;		
 	}
 	
 	if (keys[GLFW_KEY_DOWN]) {		
 		newPos = { newPos.x + 0, newPos.y + velocity*1 };
 		rotat += 270;
-		nrKeys++;
-		
+		nrKeys++;		
 	}
 
 	if (keys[GLFW_KEY_RIGHT]) {
@@ -235,12 +244,23 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	if (keys[GLFW_KEY_LEFT]) {
 		newPos = { newPos.x + velocity * -1, newPos.y + 0 };
 		rotat += 180;
-		nrKeys++;
-		
+		nrKeys++;		
 	}
 
-	if (nrKeys > 0)
+	animationTime += deltaTime;
+	if (nrKeys > 0) {
+		float oldRotation = player->tile.getRotation();
 		player->tile.setRotation(rotat / nrKeys);
+
+		if (oldRotation != player->tile.getRotation())
+			 player->resetIndex();
+		else if (animationTime >= ANIMATION_FRAME_TIME) {
+			player->increaseIndex();
+			animationTime = 0.0f;
+			
+		}
+		
+	}
 
 	player->tile.adjustPos(newPos);
 	bool eraseFlag = false;
