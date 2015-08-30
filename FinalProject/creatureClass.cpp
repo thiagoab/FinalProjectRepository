@@ -1,12 +1,8 @@
 #include "creatureClass.h"
 
-
-
-creatureClass::creatureClass()
+creatureClass::creatureClass() : health(0), speed(0.0f), power(0)
 {
-	health = 0;
-	speed = 0.0f;	
-	power = 0;		
+
 }
 
 creatureClass::creatureClass(textureClass sprite, int health, float speed, int power, glm::vec2 pos, glm::vec2 size, float rotation , glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color)
@@ -46,7 +42,5 @@ void creatureClass::setDirection()
 	
 	dirX = round(cos(rotat*3.141592 /180)); // angle has to be converted to radians ( 180 degrees = 1 pi radians)
 	dirY = round(sin(rotat*3.141592 /180))* -1;
-	
-
 }
 

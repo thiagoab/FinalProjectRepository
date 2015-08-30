@@ -1,16 +1,11 @@
 #include "tileClass.h"
 
-
-
-tileClass::tileClass()
+// assuming screensize of 800x640, this will give viewport tile dimensions of 25(w) x 20(h). ? Aim for total map size of 100 x 100 tiles ?
+tileClass::tileClass() : pos({ 0, 0 }), size({ Constants::tileWidth, Constants::tileHeight }), rotation(0.0f), collOffsetXY({ 0,0 }), collOffsetZW({ 0,0 }), color({ 1.0f, 1.0f, 1.0f })
 {
-	pos = { 0, 0 };
-	size = { 20, 20 }; // assuming screensize of 800x640, this will give viewport tile dimensions of 25(w) x 20(h). ? Aim for total map size of 100 x 100 tiles ?
-	rotation = 0.0f;
-	collOffsetXY = { 0,0 };
-	collOffsetZW = { 0,0 };
-	color = { 1.0f, 1.0f, 1.0f };
+
 }
+
 
 tileClass::tileClass(glm::vec2 pos, glm::vec2 size, textureClass sprite, float rotation, glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color)
 	: pos(pos), size(size), sprite(sprite), rotation(rotation), collOffsetXY(collOffsetXY), collOffsetZW(collOffsetZW), color(color)
@@ -18,7 +13,9 @@ tileClass::tileClass(glm::vec2 pos, glm::vec2 size, textureClass sprite, float r
 	
 }
 
+
 tileClass::~tileClass() { }
+
 
 void tileClass::adjustPos(glm::vec2 adjust)
 {
@@ -37,16 +34,12 @@ bool tileClass::operator==(tileClass &obj2)
 	glm::vec4 box2 = obj2.calculateCollBox();
 	
 	if ((box2.x >= box1.x && box2.x <= box1.z) || (box2.z >= box1.x && box2.z <= box1.z)) 
-
-		if ((box2.y >= box1.y && box2.y <= box1.w) || (box2.w >= box1.y && box2.w <= box1.w)) {			
+		if ((box2.y >= box1.y && box2.y <= box1.w) || (box2.w >= box1.y && box2.w <= box1.w)) 			
 			return true;
-		}
-
+	
 	if ((box1.x >= box2.x && box1.x <= box2.z) || (box1.z >= box2.x && box1.z <= box2.z))
-
-		if ((box1.y >= box2.y && box1.y <= box2.w) || (box1.w >= box2.y && box1.w <= box2.w)) {
+		if ((box1.y >= box2.y && box1.y <= box2.w) || (box1.w >= box2.y && box1.w <= box2.w))
 			return true;
-		}
 
 	return false;
 }
@@ -56,7 +49,7 @@ glm::vec4 tileClass::calculateCollBox()
 	glm::vec2 posXY = pos + collOffsetXY;
 	glm::vec2 posZW = pos + size + collOffsetZW;
 
-	return{ posXY.x, posXY.y, posZW.x, posZW.y };
+	return { posXY.x, posXY.y, posZW.x, posZW.y };
 }
 
 
@@ -72,14 +65,14 @@ void tileClass::setRotation(float newRotation)
 
 void tileClass::Draw(SpriteRenderer& renderer) // virtual function
 {
-	//renderer.DrawSprite(sprite, pos, size, 0.0f);
+
 }
 
-bool tileClass::isOnScreen(glm::vec2 renderingPort) {
-
-	if (pos.x > renderingPort.x-40 && pos.x < renderingPort.x + WINDOW_WIDTH) // check if spawner is on screen
-	if (pos.y > renderingPort.y-60 && pos.y < renderingPort.y + WINDOW_HEIGHT)
-		return true;
+bool tileClass::isOnScreen(glm::vec2 renderingPort) 
+{
+	if (pos.x > renderingPort.x- Constants::tileWidth && pos.x < renderingPort.x + Constants::windowWidth) // check if spawner is on screen
+		if (pos.y > renderingPort.y- Constants::tileHeight && pos.y < renderingPort.y + Constants::windowHeight)
+			return true;
 
 	return false;
 }

@@ -19,7 +19,8 @@ public:
 	void loadMapInfo(string file); // load characters from text file into mapInfo vector
 	void prepareMapObjects();
 	void Draw(SpriteRenderer &renderer);
-		
+	
+	std::vector<std::vector<char>> getMapInfo(void) { return mapInfo;  }
 	float getTileWidth() { return tileWidth; }
 	float getTileHeigth() { return tileHeight; }
 

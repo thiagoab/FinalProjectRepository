@@ -38,15 +38,15 @@ void mapClass::loadMapInfo(string file)
 void mapClass::prepareMapObjects()
 {
 	int fileRows = mapInfo.size();
-	tileHeight = 60;// MAP_HEIGHT / float(fileRows);
+	tileHeight = Constants::tileHeight; //60;// MAP_HEIGHT / float(fileRows);
 
 	int fileColumns = mapInfo[0].size();
-	tileWidth = 40;// MAP_WIDTH / float(fileColumns);
+	tileWidth = Constants::tileWidth;// 40;// MAP_WIDTH / float(fileColumns);
 
 	for (int row = 0; row < fileRows ; row++) { // iterate through the 2D vector containing mapInfo (ascii characters)
 		for (int column = 0; column < fileColumns; column++)	{
 
-			glm::vec2 pos(int (column * tileWidth) , int((row) * tileHeight - row *25 ) );
+			glm::vec2 pos(int (column * tileWidth) , int((row) * tileHeight - row *25) );
 			glm::vec2 size(tileWidth, tileHeight);
 
 			mapElementClass floorT({ pos.x, pos.y }, size, resourceManagerClass::GetTexture("floor"), floorTile, { 1.0f, 1.0f, 1.0f });

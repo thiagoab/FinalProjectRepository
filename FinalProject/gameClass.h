@@ -4,6 +4,7 @@
 #include <GL\glew.h>
 // GLFW
 #include <GLFW\glfw3.h>
+#include <iostream>
 
 #include "mapElementClass.h"
 #include "playerClass.h"
@@ -15,6 +16,8 @@
 #include "spawnerClass.h"
 #include "projectileClass.h"
 #include "TextRenderer.h"
+#include "AStarTree.h"
+#include "Constants.h"
 
 
 class gameClass
@@ -32,9 +35,9 @@ public:
 
 	bool getKeys(int i) { return keys[i]; }
 	bool getKeysPressed(int i) { return keysPressed[i]; }
+
 	void setKeys(int i, bool flip) { keys[i] = flip; }
 	void setKeysPressed(int i, bool flip) { keysPressed[i] = flip; }
-
 
 private:
 	

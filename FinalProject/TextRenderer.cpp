@@ -1,7 +1,6 @@
 #include "TextRenderer.h"
 
 
-
 TextRenderer::TextRenderer(Shader &shader)
 {
 	this->shader = shader;
@@ -19,13 +18,14 @@ void TextRenderer::initRenderData()
 {
 	// FreeType
 	FT_Library ft;
+
 	// All functions return a value different than 0 whenever an error occurred
 	if (FT_Init_FreeType(&ft))
 		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
 	// Load font as face
 	FT_Face face;
-	if (FT_New_Face(ft, "fonts/SEVESBRG.ttf", 0, &face))
+	if (FT_New_Face(ft, Constants::fontFilePath.c_str(), 0, &face))
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
 	// Set size to load glyphs as

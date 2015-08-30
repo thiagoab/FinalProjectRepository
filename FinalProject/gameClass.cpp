@@ -1,17 +1,4 @@
 #include "gameClass.h"
-#include <iostream>
-
-#define PLAYER_SPEED 150
-#define FOOD_VALUE 100
-#define TREASURE_VALUE 100
-#define SPAWN_RATE 3.0
-#define ENEMY_HEALTH 10
-#define ENEMY_SPEED 100
-#define ENEMY_POWER 10
-#define BULLET_SPEED 200
-#define BULLET_POWER 10
-#define FIRE_RATE 0.15
-#define ANIMATION_FRAME_TIME 0.075
 
 gameClass::gameClass()
 {
@@ -35,8 +22,8 @@ void gameClass::initializeGame()
 	resourceManagerClass::LoadShader("shaders/text.vs", "shaders/text.frag", nullptr, "text");
 
 
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), static_cast<GLfloat>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
-	glm::mat4 projectionText = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT), -1.0f, 1.0f);
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(Constants::windowWidth), static_cast<GLfloat>(Constants::windowHeight), 0.0f, -1.0f, 1.0f);
+	glm::mat4 projectionText = glm::ortho(0.0f, static_cast<GLfloat>(Constants::windowWidth), 0.0f, static_cast<GLfloat>(Constants::windowHeight), -1.0f, 1.0f);
 
 	resourceManagerClass::GetShader("sprite").Use().SetInteger("sprite", 0);
 	resourceManagerClass::GetShader("sprite").SetMatrix4("projection", projection);
@@ -62,9 +49,9 @@ void gameClass::initializeGame()
 	                       
 	player = new playerClass(resourceManagerClass::GetTexture("player"),	// texture    
 		100,																// health
-		PLAYER_SPEED,														// speed
+		Constants::playerSpeed,												// speed
 		7,																	// attack power
-		{ WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 },							// starting position
+		{ Constants::windowWidth / 2, Constants::windowHeight / 2 },		// starting position
 		{ 120, 110 },														// size in pixels (width, height)
 		0,																	// rotation (0 - 360 degrees, in 45 degree increments
 		{ 10, 80 },															// collisionOffsetXY : adjustment to collision box (left upper corner)
@@ -94,23 +81,23 @@ void gameClass::render()
 	}
 	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	textRenderer->DrawText(player->getPlayerType(), 10, WINDOW_HEIGHT  - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(player->getPlayerType(), 11, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(player->getPlayerType(), 10, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(player->getPlayerType(), 11, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	
-	textRenderer->DrawText("Score:", 150, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText("Score:", 151, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText("Score:", 150, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Score:", 151, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
-	textRenderer->DrawText(std::to_string(player->getTreasure()), 233, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(std::to_string(player->getTreasure()), 234, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 233, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 234, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
-	textRenderer->DrawText("Health:", 300, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText("Health:", 301, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText("Health:", 300, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Health:", 301, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	
-	textRenderer->DrawText(std::to_string(player->getHealth()), 396, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(std::to_string(player->getHealth()), 397, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(std::to_string(player->getHealth()), 396, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getHealth()), 397, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
-	textRenderer->DrawText("Level:", WINDOW_WIDTH - 150, WINDOW_HEIGHT - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText("Level:", WINDOW_WIDTH - 149, WINDOW_HEIGHT - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText("Level:", Constants::windowWidth - 150, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Level:", Constants::windowWidth - 149, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
 }
 
@@ -125,7 +112,7 @@ void gameClass::update(float deltaTime) {
 
 	moveEnemies(deltaTime);
 
-	if (spawnTimer > SPAWN_RATE) {
+	if (spawnTimer > Constants::spawnRate) {
 		spawnEnemies();
 		spawnTimer = 0;
 	}
@@ -145,15 +132,15 @@ void gameClass::spawnEnemies()
 			glm::vec2 size(mapLevel1.getTileWidth(), mapLevel1.getTileHeigth());				
 				
 			enemyClass enemy(resourceManagerClass::GetTexture("enemy"), // sprite
-				ENEMY_HEALTH,								// health
-				ENEMY_SPEED,								// speed
-				ENEMY_POWER,								// attack power
-				{ spawnX - 35, spawnY },					// starting position
-				{ size.x+10 , size.y+10 },						// size
-				0,											// rotation
-				{ 8, 30 },									// collisionOffsetXY
-				{ -8, 5 },									// collisionOffsetZW
-				{1,1,1});									// color
+				Constants::enemyHealth,									// health
+				Constants::enemySpeed,									// speed
+				Constants::enemyPower,									// attack power
+				{ spawnX - 35, spawnY },								// starting position
+				{ size.x+10 , size.y+10 },								// size
+				0,														// rotation
+				{ 8, 30 },												// collisionOffsetXY
+				{ -8, 5 },												// collisionOffsetZW
+				{1,1,1});												// color
 				
 			enemies.push_back(enemy);			
 		}
@@ -167,8 +154,8 @@ void gameClass::moveEnemies(float deltaTime)
 
 		glm::vec2 oldPos = enemies[i].tile.getPos();	
 
-		if (enemies[i].tile.isOnScreen(renderingPort)) {
-
+		if (enemies[i].tile.isOnScreen(renderingPort)) 
+		{
 			float velocity = enemies[i].getSpeed() * deltaTime;			
 			float xFactor = 0.0f, yFactor = 0.0f;
 
@@ -181,36 +168,81 @@ void gameClass::moveEnemies(float deltaTime)
 			xFactor = distanceX / timeD;
 			yFactor = distanceY / timeD;
 
-			/*if (player->tile.getPos().x - oldPos.x > 5)
-				xFactor = velocity * 1;
-			else if (player->tile.getPos().x - oldPos.x < -5)
-				xFactor = velocity * -1;
+			glm::vec2 newPos = { xFactor, 0 };
 
-			if (player->tile.getPos().y + 40 - oldPos.y > 5)
-				yFactor = velocity * 1;
-			else if (player->tile.getPos().y + 40 - oldPos.y < -5)
-				yFactor = velocity * -1;*/
+//			std::string path = pathFind(oldPos.x / Constants::mapHeightInTiles, oldPos.y / (Constants::tileWidth - 25), player->tile.getPos().x / Constants::tileHeight, player->tile.getPos().y / (Constants::tileWidth - 25), mapLevel1.getMapInfo());
 
-			glm::vec2 newPos = { 1 * xFactor, 0 };			
-			for (int j = 0; j > -2; j--) {   // iterate twice for movement along x and movement along y to allow enemies to slide along walls which they run into				
-			
+
+			//std::vector<std::vector<char>> map = mapLevel1.getMapInfo();
+			//if (path.length()>0)
+			//{
+			//	int j; char c;
+			//	int x = oldPos.x/Constants::tileWidth;
+			//	int y = oldPos.y/ Constants::tileHeight;
+			//	map[x][y] = 2;
+			//	for (int i = 0; i<path.length(); i++)
+			//	{
+			//		c = path.at(i);
+			//		j = atoi(&c);
+			//		x = x + dx[j];
+			//		y = y + dy[j];
+			//		map[x][y] = 3;
+			//	}
+			//	map[x][y] = 4;
+
+			//	// display the map with the route
+			//	for (int y = 0; y<Constants::mapWidthInTiles; y++)
+			//	{
+			//		for (int x = 0; x<Constants::mapHeightInTiles; x++)
+			//			if (map[x][y] == '.')
+			//				cout << ".";
+			//			else if (map[x][y] == 'w')
+			//				cout << "w"; //obstacle
+			//			else if (map[x][y] == 2)
+			//				cout << "S"; //start
+			//			else if (map[x][y] == 3)
+			//				cout << "R"; //route
+			//			else if (map[x][y] == 4)
+			//				cout << "F"; //finish
+			//			cout << endl;
+			//	}
+			//}
+
+
+			for (int j = 0; j > -2; j--) // iterate twice for movement along x and movement along y to allow enemies to slide along walls which they run into				
+			{   
 				enemies[i].tile.adjustPos(newPos);
 				bool eraseFlag = false;
 				
-				if (checkCollision(&(enemies[i]), eraseFlag)) {
-					if (eraseFlag) {
+				if (checkCollision(&(enemies[i]), eraseFlag)) 
+				{
+					if (eraseFlag) 
+					{
 						enemies.erase(enemies.begin() + i);
 						break;
 					}
-					else {
+					else 
 						enemies[i].tile.resetPos(oldPos);												
-					}
 				}
-				else if (j == 0) {
+				else if (j == 0) 
 					oldPos.x += newPos.x;											
-				}
-				newPos = { 0, 1 * yFactor };				
+
+				newPos = { 0, yFactor };				
 			}
+
+			//if (path.size() > 0)
+			//{
+			//	int x = stoi(path.substr(0,1));
+			//	int y = stoi(path.substr(0, 1));
+
+			//	newPos = { oldPos.x + dx[x], oldPos.y + dy[y]};
+			//	enemies[i].tile.adjustPos(newPos);
+	
+			//	oldPos.x = newPos.x;
+			//	oldPos.y = newPos.y;
+			//	enemies[i].tile.resetPos(oldPos);
+			//}
+
 		}
 	}
 }
@@ -254,7 +286,7 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 
 		if (oldRotation != player->tile.getRotation())
 			 player->resetIndex();
-		else if (animationTime >= ANIMATION_FRAME_TIME) {
+		else if (animationTime >= Constants::animationFrameTime) {
 			player->increaseIndex();
 			animationTime = 0.0f;
 			
@@ -268,15 +300,15 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	if (checkCollision(player, eraseFlag))
 		player->tile.resetPos(oldPos);
 	else {
-		if (player->tile.getPos().x >= WINDOW_WIDTH / 2 && player->tile.getPos().x <= MAP_WIDTH - WINDOW_WIDTH / 2)
+		if (player->tile.getPos().x >= Constants::windowWidth / 2 && player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2)
 			renderer->setCam(newPos.x * -1.0f, 0.0f);
-		if (player->tile.getPos().y >= WINDOW_HEIGHT / 2 && player->tile.getPos().y <= MAP_HEIGHT - WINDOW_HEIGHT / 2)
+		if (player->tile.getPos().y >= Constants::windowHeight / 2 && player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2)
 			renderer->setCam(0.0f, newPos.y * -1.0f);
 	}
 
 	if (keys[GLFW_KEY_SPACE]) {		
 				
-		if (projectileTimer > FIRE_RATE) {
+		if (projectileTimer > Constants::fireRate) {
 			fireProjectile();
 			projectileTimer = 0;
 		}		
@@ -347,11 +379,11 @@ void gameClass::playerPickedUpItem(mapElementClass item)
 		break;
 
 	case keyTile: // keyTile
-		player->incrementHealth(FOOD_VALUE);
+		player->incrementHealth(Constants::foodValue);
 		break;
 
 	case treasure: // treasure
-		player->increaseTreasure(TREASURE_VALUE);
+		player->increaseTreasure(Constants::treasureValue);
 		break;
 	}
 }
@@ -365,9 +397,9 @@ void gameClass::fireProjectile()
 
 	projectileClass projectileT(resourceManagerClass::GetTexture("projectile"), // sprite
 		1,											// health
-		BULLET_SPEED,								// speed
-		BULLET_POWER,								// attack power
-		{ spawnX+20 , spawnY+50 },						// starting position
+		Constants::bulletSpeed,						// speed
+		Constants::bulletPower,						// attack power
+		{ spawnX+20 , spawnY+50 },					// starting position
 		{ size.x -20 , size.y -25 },				// size
 		player->tile.getRotation(),					// rotation
 		{ 0, 0 },									// collisionOffsetXY

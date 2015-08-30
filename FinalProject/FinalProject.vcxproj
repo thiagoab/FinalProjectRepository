@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AStarTree.cpp" />
     <ClCompile Include="creatureClass.cpp" />
     <ClCompile Include="enemyClass.cpp" />
     <ClCompile Include="gameClass.cpp" />
@@ -165,6 +166,8 @@
     <ClCompile Include="tileClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AStarTree.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="creatureClass.h" />
     <ClInclude Include="enemyClass.h" />
     <ClInclude Include="gameClass.h" />

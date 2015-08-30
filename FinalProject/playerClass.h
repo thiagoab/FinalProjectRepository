@@ -3,7 +3,6 @@
 #include "textureClass.h"
 #include <map>
 
-#define PLAYER_ATTACK_RANGE 10
 
 enum playerType { warrior = 0 };
 typedef playerType PlayerType;

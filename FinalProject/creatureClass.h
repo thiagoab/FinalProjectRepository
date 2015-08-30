@@ -12,20 +12,20 @@ private:
 	
 		
 public:
+	tileClass tile;
+	
 	creatureClass();
 	creatureClass(textureClass sprite, int health, float speed, int power, glm::vec2 pos, glm::vec2 size, float rotation, glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color);
 	~creatureClass();
 
 	void incrementHealth(int increase);
 	int getHealth();
-	tileClass tile;
+	float getSpeed();
+	void getDirection(int &x, int &y);
+	
+	void setDirection();
 
 	void Draw(SpriteRenderer& renderer);
-	
-	float getSpeed();
-
-	void setDirection();
-	void getDirection(int &x, int &y);
 };
 
 

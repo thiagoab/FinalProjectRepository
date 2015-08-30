@@ -8,7 +8,7 @@
 
 playerClass::playerClass()
 {
-	range = PLAYER_ATTACK_RANGE;
+	range = Constants::playerAttackRange;
 	treasure = 0;
 	lives = 3;
 	keys = 0;
@@ -23,7 +23,7 @@ playerClass::playerClass()
 playerClass::playerClass(textureClass sprite, int health, int speed, int power, glm::vec2 pos, glm::vec2 size, float rotation, glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color)
 : creatureClass(sprite, health, speed, power, pos, size, rotation, collOffsetXY, collOffsetZW, color)
 {
-	range = PLAYER_ATTACK_RANGE;
+	range = Constants::playerAttackRange;
 	treasure = 0;
 	lives = 3;
 	keys = 0;

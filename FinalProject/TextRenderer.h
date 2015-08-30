@@ -4,6 +4,7 @@
 #include <ft2build.h>
 #include "Shader.h"
 #include <iostream>
+#include "Constants.h"
 #include <map>
 #include FT_FREETYPE_H
 
@@ -18,7 +19,6 @@ struct Character
 
 class TextRenderer
 {
-
 	std::map<GLchar, Character> Characters;
 	GLuint VAO, VBO;
 	Shader shader;
