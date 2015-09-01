@@ -2,11 +2,19 @@
 
 creatureClass::creatureClass() : health(0), speed(0.0f), power(0)
 {
-
+	frameIndex = 0;	
+	strcpy(currentAction, "walking");
 }
 
-creatureClass::creatureClass(textureClass sprite, int health, float speed, int power, glm::vec2 pos, glm::vec2 size, float rotation , glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color)
-	: tile(pos, size, sprite, rotation, collOffsetXY, collOffsetZW, color), health(health), speed(speed), power(power) { }
+creatureClass::creatureClass(char* creature, int nrActions, textureClass sprite, int health, float speed, int power, glm::vec2 pos, glm::vec2 size,
+							float rotation , glm::vec2 collOffsetXY, glm::vec2 collOffsetZW, glm::vec3 color)
+							: tile(pos, size, sprite, rotation, collOffsetXY, collOffsetZW, color), creature(creature), 
+							nrActions(nrActions), health(health), speed(speed), power(power)
+{
+
+	frameIndex = 0;
+	strcpy(currentAction, "walking");
+}
 
 creatureClass::~creatureClass() { }
 
@@ -22,7 +30,99 @@ int creatureClass::getHealth()
 
 void creatureClass::Draw(SpriteRenderer& renderer)
 {
+	if (creature == "dwarf" || creature == "axe" || creature == "skull")
+		getCreatureTexture();
 	renderer.DrawSprite(tile.sprite, tile.getPos(), tile.getSize(), 0.0f, tile.getColor());
+}
+
+char * creatureClass::determineFramesPerAction(char creature[], int act, int &nrFrames) {
+
+	char action[10] = "";
+	switch (act) {
+	case 0:
+		strcat(action, "walking ");
+		if (creature == "dwarf")
+			nrFrames = 8;
+		else if ( creature == "skull")
+			nrFrames = 10;
+		else if (creature == "axe")
+			nrFrames = 4;
+
+		break;
+
+	case 1:
+		strcat(action, "attack ");
+		if (creature == "dwarf")
+			nrFrames = 2;
+		break;
+	}
+
+	return action;
+}
+
+
+void creatureClass::getCreatureTexture(){
+
+	char filepathCreature[100] = "";
+	strcpy(filepathCreature, "");
+	strcat(filepathCreature, "textures/");
+	strcat(filepathCreature, creature);
+	strcat(filepathCreature, "/");
+	strcat(filepathCreature, currentAction);
+	strcat(filepathCreature, " ");
+
+	char d[3] = "";
+	strcpy(d, getWindDirection(tile.getRotation()));
+	strcat(filepathCreature, d);
+	strcat(filepathCreature, "000");
+
+	char index[3] = { frameIndex + 48 };
+	strcat(filepathCreature, index);
+	strcat(filepathCreature, ".png");
+
+	tile.sprite = resourceManagerClass::GetTexture(filepathCreature);
+}
+
+void creatureClass::increaseIndex() {
+
+	frameIndex++;
+	int nrFrames = 0;
+	
+	if (getCurrentAction() == "walking"){
+		determineFramesPerAction(this->creature, 0, nrFrames);
+		if (frameIndex == nrFrames)
+			frameIndex = 0;
+	}
+	else {
+		determineFramesPerAction(this->creature, 1, nrFrames);
+		
+		if (frameIndex == nrFrames) { // if player is not walking and if end of alternative action cycle reached
+			strcpy(currentAction, "walking");
+			frameIndex = 0;
+		}
+	}
+}
+
+void creatureClass::setCurrentAction(char action[])
+{ 
+	strcpy(currentAction, action); 
+}
+
+
+char* creatureClass::getWindDirection(int rotate) {
+	char d[3] = "";
+
+	if (rotate >= 45 && rotate <= 135)
+		strcat(d, "n");
+	else if (rotate >= 225 && rotate <= 315)
+		strcat(d, "s");
+
+	if (rotate >= 135 && rotate <= 225)
+		strcat(d, "w");
+	else if (rotate >= 315 || rotate <= 45)
+		strcat(d, "e");
+
+	return d;
 }
 
 float creatureClass::getSpeed()

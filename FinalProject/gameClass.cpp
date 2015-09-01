@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "gameClass.h"
 
 gameClass::gameClass()
@@ -37,17 +41,15 @@ void gameClass::initializeGame()
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Heart.png", GL_TRUE, "food");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Gem Blue.png", GL_TRUE, "treasure");
 	resourceManagerClass::LoadTexture("textures/spawn.png", GL_TRUE, "spawn");
-	resourceManagerClass::LoadTexture("textures/skull.png", GL_TRUE, "enemy");
-	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Tree Short.png", GL_TRUE, "projectile");
-	
+		
 	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"));
 	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));
 	
 	mapLevel1.loadMapInfo("maps/map2.txt");
-
-	resourceManagerClass::LoadTexture("textures/dwarf/walking s0004.png", GL_TRUE, "player");
-	                       
-	player = new playerClass(resourceManagerClass::GetTexture("player"),	// texture    
+		                       
+	player = new playerClass("dwarf", 										// creature name
+		2,																	// nr of actions which require animation
+		resourceManagerClass::GetTexture("player"),	// texture    
 		100,																// health
 		Constants::playerSpeed,												// speed
 		7,																	// attack power
@@ -58,8 +60,50 @@ void gameClass::initializeGame()
 		{ -10, 0 },															// collisionOffsetZW : adjustment to collision box (right lower corner)
 		{ 1, 1, 1 });														// color
 		
-	player->loadPlayerTextures();
+	loadCreatureTextures("dwarf", 2);
+	loadCreatureTextures("axe", 1);
+	loadCreatureTextures("skull", 1);
 }
+
+void gameClass::loadCreatureTextures(char creature[], int nrActions) {
+	int nrFrames = 0;
+
+	char filepathCreature[100] = "";
+
+	strcat(filepathCreature, "textures/");
+	strcat(filepathCreature, creature);
+	strcat(filepathCreature, "/");
+	char filepathAction[100] = "";
+
+	for (int act = 0; act < nrActions; act++) {
+		int nrFrames = 0;
+
+		strcpy(filepathAction, filepathCreature);
+		strcat(filepathAction, creatureClass::determineFramesPerAction(creature, act, nrFrames));
+		char filepathDirection[100] = "";
+
+		for (int direction = 0; direction < 8; direction++) {
+
+			strcpy(filepathDirection, filepathAction);
+			char d[3] = "";
+			strcpy(d, creatureClass::getWindDirection(direction * 45));
+
+			strcat(filepathDirection, d);
+			strcat(filepathDirection, "000");
+			char filepathFinal[100] = "";
+
+			for (int i = 0; i < nrFrames; i++) {
+				strcpy(filepathFinal, filepathDirection);
+				char index[3] = { i + 48 };
+
+				strcat(filepathFinal, index);
+				strcat(filepathFinal, ".png");
+
+				resourceManagerClass::LoadTexture(filepathFinal, GL_TRUE, filepathFinal);
+			}
+		}
+	}
+ }
 
 void gameClass::render()
 {
@@ -131,13 +175,15 @@ void gameClass::spawnEnemies()
 				
 			glm::vec2 size(mapLevel1.getTileWidth(), mapLevel1.getTileHeigth());				
 				
-			enemyClass enemy(resourceManagerClass::GetTexture("enemy"), // sprite
+			enemyClass enemy("skull", 						// creature name
+				1,											// nr of actions which require animation
+				resourceManagerClass::GetTexture("skull"), // sprite
 				Constants::enemyHealth,									// health
 				Constants::enemySpeed,									// speed
 				Constants::enemyPower,									// attack power
 				{ spawnX - 35, spawnY },								// starting position
 				{ size.x+10 , size.y+10 },								// size
-				0,														// rotation
+				270,												// rotation
 				{ 8, 30 },												// collisionOffsetXY
 				{ -8, 5 },												// collisionOffsetZW
 				{1,1,1});												// color
@@ -208,11 +254,11 @@ void gameClass::moveEnemies(float deltaTime)
 			//	}
 			//}
 
-
+			bool eraseFlag = false;
 			for (int j = 0; j > -2; j--) // iterate twice for movement along x and movement along y to allow enemies to slide along walls which they run into				
 			{   
 				enemies[i].tile.adjustPos(newPos);
-				bool eraseFlag = false;
+				
 				
 				if (checkCollision(&(enemies[i]), eraseFlag)) 
 				{
@@ -229,8 +275,20 @@ void gameClass::moveEnemies(float deltaTime)
 
 				newPos = { 0, yFactor };				
 			}
+			if (eraseFlag == false) {
+				enemies[i].increaseAnimationTime(deltaTime);
 
-			//if (path.size() > 0)
+				if (enemies[i].getAnimationTime() >= Constants::animationFrameTime) {
+					enemies[i].increaseIndex();
+					enemies[i].resetAnimationTime();
+					enemies[i].tile.setRotation( enemies[i].calculateRotation(distanceX,  distanceY) );
+				}
+			}
+		} // if enemy is on screen
+	} // for  : iterate thourgh all enemies
+			
+	
+	//if (path.size() > 0)
 			//{
 			//	int x = stoi(path.substr(0,1));
 			//	int y = stoi(path.substr(0, 1));
@@ -243,8 +301,8 @@ void gameClass::moveEnemies(float deltaTime)
 			//	enemies[i].tile.resetPos(oldPos);
 			//}
 
-		}
-	}
+		
+	
 }
 
 void gameClass::processInput(float deltaTime) // deltaTime = time between frames
@@ -254,6 +312,7 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	glm::vec2 newPos = { 0.0f, 0.0f };
 	int rotat = 0;
 	int nrKeys = 0;	
+	animationTime += deltaTime;
 
 	if (keys[GLFW_KEY_UP]) {
 		newPos ={newPos.x + 0, newPos.y + velocity*-1 };
@@ -279,18 +338,25 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 		nrKeys++;		
 	}
 
-	animationTime += deltaTime;
-	if (nrKeys > 0) {
-		float oldRotation = player->tile.getRotation();
-		player->tile.setRotation(rotat / nrKeys);
+	if (nrKeys > 0) { // if an arrow key has been pressed;
+		
+		float oldRotation = player->tile.getRotation(); // get current rotation
+		player->tile.setRotation(rotat / nrKeys); // determine new rotation based on which combination of arrow keys have been pressed
 
-		if (oldRotation != player->tile.getRotation())
-			 player->resetIndex();
-		else if (animationTime >= Constants::animationFrameTime) {
-			player->increaseIndex();
+		if (oldRotation != player->tile.getRotation()){ // if rotation has changed
+			player->resetIndex();						//reset the animation index and set animation action to walking
+			player->setCurrentAction("walking");
 			animationTime = 0.0f;
 			
 		}
+		else if (animationTime >= Constants::animationFrameTime) {	// if rotation has not changed and if it is time for the next animation
+			animationTime = 0.0f;
+			player->increaseIndex();			
+		}		
+	}
+	else if (player->getCurrentAction() == "attack" && (animationTime >= Constants::animationFrameTime)) {
+		animationTime = 0.0f;
+		player->increaseIndex();
 		
 	}
 
@@ -299,7 +365,7 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 
 	if (checkCollision(player, eraseFlag))
 		player->tile.resetPos(oldPos);
-	else {
+	else {// if player does not collide with anything
 		if (player->tile.getPos().x >= Constants::windowWidth / 2 && player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2)
 			renderer->setCam(newPos.x * -1.0f, 0.0f);
 		if (player->tile.getPos().y >= Constants::windowHeight / 2 && player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2)
@@ -310,6 +376,11 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 				
 		if (projectileTimer > Constants::fireRate) {
 			fireProjectile();
+			if (player->getCurrentAction() != "attack") { // if attack animation is not playing allready
+				player->setCurrentAction("attack");
+				player->resetIndex();
+				animationTime = 0.0f;
+			}
 			projectileTimer = 0;
 		}		
 	}			
@@ -395,16 +466,18 @@ void gameClass::fireProjectile()
 	
 	glm::vec2 size(mapLevel1.getTileWidth(), mapLevel1.getTileHeigth());
 
-	projectileClass projectileT(resourceManagerClass::GetTexture("projectile"), // sprite
+	projectileClass projectileT("axe", 										// creature name
+		1,																	// nr of actions which require animation
+		resourceManagerClass::GetTexture("axe"), // sprite
 		1,											// health
 		Constants::bulletSpeed,						// speed
 		Constants::bulletPower,						// attack power
-		{ spawnX+20 , spawnY+50 },					// starting position
-		{ size.x -20 , size.y -25 },				// size
+		{ spawnX+40 , spawnY+50 },						// starting position
+		{ size.x -10 , size.y -15 },				// size
 		player->tile.getRotation(),					// rotation
 		{ 0, 0 },									// collisionOffsetXY
 		{ 0, 0 },									// collisionOffsetZW
-		{ 1,0,0 });									// color
+		{ 0.6f, 0.6f, 0.6f });						// color
 
 		projectiles.push_back(projectileT);
 	
@@ -428,6 +501,13 @@ void gameClass::moveProjectiles(float deltaTime)
 		*activeProjectile = projectiles[i];
 		if (checkCollision(activeProjectile, eraseFlag)  ||  !projectiles[i].tile.isOnScreen(renderingPort)) {
 			projectiles.erase(projectiles.begin() + i);			
+		}
+		else {
+			projectiles[i].increaseAnimationTime(deltaTime);
+			if (projectiles[i].getAnimationTime() >= Constants::animationFrameTime) {
+				projectiles[i].increaseIndex();
+				projectiles[i].resetAnimationTime();
+			}
 		}
 		
 	}

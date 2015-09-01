@@ -39,6 +39,8 @@ public:
 	void setKeys(int i, bool flip) { keys[i] = flip; }
 	void setKeysPressed(int i, bool flip) { keysPressed[i] = flip; }
 
+	void loadCreatureTextures(char creatureString[], int totalActions);
+
 private:
 	
 	bool keys[1024], keysPressed[1024];
