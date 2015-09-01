@@ -73,7 +73,7 @@ void mapClass::prepareMapObjects()
 				pickups.push_back(keyT);
 			}
 			else if (mapInfo[row][column] == 's') {
-				spawnerClass spawnT(resourceManagerClass::GetTexture("spawn"), pos, { size.x + 20, size.y}, 100, 0, 0, 0, { 25, 25 }, { -25, -10 }, { 1.0f, 1.0f, 1.0f });
+				spawnerClass spawnT("spawn", 0, resourceManagerClass::GetTexture("spawn"), pos, { size.x + 20, size.y}, 100, 0, 0, 0, { 25, 25 }, { -25, -10 }, { 1.0f, 1.0f, 1.0f });
 				spawns.push_back(spawnT);				
 			}
 		
