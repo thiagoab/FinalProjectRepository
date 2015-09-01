@@ -385,8 +385,10 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 			renderer->setCam(0.0f, newPos.y * -1.0f);
 	}
 
-	if (keys[GLFW_KEY_SPACE]) {		
+	if (keys[GLFW_KEY_SPACE] && !keysPressed[GLFW_KEY_SPACE]) {		
 				
+		setKeysPressed(GLFW_KEY_SPACE, true);
+
 		if (projectileTimer > Constants::fireRate) {
 			fireProjectile();
 			if (player->getCurrentAction() != "attack") { // if attack animation is not playing allready
