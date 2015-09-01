@@ -29,8 +29,8 @@ namespace Constants
 	const static int bulletSpeed = 200;
 	const static int bulletPower = 10;
 	
-	const static float spawnRate = 3.0f;
-	const static float fireRate = 0.15f;
+	const static float spawnRate = 1.0f;
+	const static float fireRate = 0.25f;
 	const static float animationFrameTime = 0.075f;
 
 	const static std::string fontFilePath = "fonts/SEVESBRG.ttf";

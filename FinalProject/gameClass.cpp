@@ -125,24 +125,37 @@ void gameClass::render()
 	}
 	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 	
+	// Text Rendering
+
+	// Player type
 	textRenderer->DrawText(player->getPlayerType(), 10, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText(player->getPlayerType(), 11, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	
+	// Score
 	textRenderer->DrawText("Score:", 150, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText("Score:", 151, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 243, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getTreasure()), 244, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
-	textRenderer->DrawText(std::to_string(player->getTreasure()), 233, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(std::to_string(player->getTreasure()), 234, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	// Health
+	textRenderer->DrawText("Health:", 330, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Health:", 331, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(std::to_string(player->getHealth()), 436, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getHealth()), 437, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
-	textRenderer->DrawText("Health:", 300, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText("Health:", 301, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-	
-	textRenderer->DrawText(std::to_string(player->getHealth()), 396, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(std::to_string(player->getHealth()), 397, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 
+	// Keys
+	textRenderer->DrawText("Keys:", 510, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText("Keys:", 511, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	textRenderer->DrawText(std::to_string(player->getKeys()), 583, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(player->getKeys()), 584, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
+
+	// Level
 	textRenderer->DrawText("Level:", Constants::windowWidth - 150, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText("Level:", Constants::windowWidth - 149, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-
+	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 65, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 64, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 }
 
 
@@ -382,7 +395,7 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 				animationTime = 0.0f;
 			}
 			projectileTimer = 0;
-		}		
+		}
 	}			
 		
 }
@@ -446,11 +459,11 @@ void gameClass::playerPickedUpItem(mapElementClass item)
 {
 	switch (item.content) {
 	case food: // food
-		player->incrementKeys(1);
+		player->incrementHealth(Constants::foodValue);
 		break;
 
 	case keyTile: // keyTile
-		player->incrementHealth(Constants::foodValue);
+		player->incrementKeys(1);
 		break;
 
 	case treasure: // treasure

@@ -23,6 +23,7 @@ public:
 	std::vector<std::vector<char>> getMapInfo(void) { return mapInfo;  }
 	float getTileWidth() { return tileWidth; }
 	float getTileHeigth() { return tileHeight; }
+	int getLevel(void) { return level; }
 
 	vector<mapElementClass> walls;
 	vector<mapElementClass> floors;
@@ -34,4 +35,5 @@ private:
 	vector<vector<char>> mapInfo; // 2D vector which contains ascii map loaded from text file. Each ascii character symbolizes an ingame tile eg 'w' = wall
 	float tileHeight;	
 	float tileWidth;
+	int	level;
 };

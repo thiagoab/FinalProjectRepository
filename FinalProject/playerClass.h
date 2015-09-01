@@ -21,6 +21,7 @@ public:
 
 	void increaseTreasure(int increase);
 	int getTreasure();
+	int getKeys(void) { return keys; }
 
 	void Draw(SpriteRenderer& renderer);
 

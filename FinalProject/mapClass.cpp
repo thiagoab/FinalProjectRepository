@@ -5,6 +5,7 @@ mapClass::mapClass()
 {
 	tileWidth = 0;
 	tileHeight = 0;
+	level = 1;
 }
 
 
