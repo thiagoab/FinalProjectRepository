@@ -11,6 +11,7 @@ gameClass::gameClass()
 	activeProjectile = new projectileClass();
 	renderingPort = { 0.0f, 0.0f };
 	animationTime = 0.0f;
+	isDead = false;
 }
 
 gameClass::~gameClass()
@@ -60,7 +61,7 @@ void gameClass::initializeGame()
 		{ -10, 0 },															// collisionOffsetZW : adjustment to collision box (right lower corner)
 		{ 1, 1, 1 });														// color
 		
-	loadCreatureTextures("dwarf", 2);
+	loadCreatureTextures("dwarf", 3);
 	loadCreatureTextures("axe", 1);
 	loadCreatureTextures("skull", 1);
 }
@@ -175,6 +176,25 @@ void gameClass::update(float deltaTime) {
 	}
 
 	moveProjectiles(deltaTime);
+	
+	if(player->getHealth() <= 0)
+	{
+		if(!isDead)
+		{
+			animationTime = 0.0f;
+			player->resetIndex();
+			isDead = true;
+			player->setCurrentAction("tipping over");
+		}
+
+		animationTime += deltaTime;
+
+		if (animationTime >= Constants::animationFrameTime) 
+		{
+			animationTime = 0.0f;
+			player->increaseIndex();
+		}
+	}
 }
 
 void gameClass::spawnEnemies()
@@ -213,7 +233,7 @@ void gameClass::moveEnemies(float deltaTime)
 
 		glm::vec2 oldPos = enemies[i].tile.getPos();	
 
-		if (enemies[i].tile.isOnScreen(renderingPort)) 
+		if (enemies[i].tile.isOnScreen(renderingPort) /*&& player->getHealth() > 0*/) 
 		{
 			float velocity = enemies[i].getSpeed() * deltaTime;			
 			float xFactor = 0.0f, yFactor = 0.0f;

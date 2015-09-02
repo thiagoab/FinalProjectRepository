@@ -37,7 +37,7 @@ void creatureClass::Draw(SpriteRenderer& renderer)
 
 char * creatureClass::determineFramesPerAction(char creature[], int act, int &nrFrames) {
 
-	char action[10] = "";
+	char action[14] = "";
 	switch (act) {
 	case 0:
 		strcat(action, "walking ");
@@ -54,6 +54,10 @@ char * creatureClass::determineFramesPerAction(char creature[], int act, int &nr
 		strcat(action, "attack ");
 		if (creature == "dwarf")
 			nrFrames = 2;
+		break;
+	case 2:
+		strcat(action, "tipping over ");
+		nrFrames = 10;
 		break;
 	}
 
@@ -92,6 +96,13 @@ void creatureClass::increaseIndex() {
 		determineFramesPerAction(this->creature, 0, nrFrames);
 		if (frameIndex == nrFrames)
 			frameIndex = 0;
+	}
+	else if(getCurrentAction() == "tipping over")
+	{
+		determineFramesPerAction(this->creature, 2, nrFrames);
+		
+		if (frameIndex == nrFrames)
+			frameIndex--;	
 	}
 	else {
 		determineFramesPerAction(this->creature, 1, nrFrames);
