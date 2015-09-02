@@ -31,6 +31,8 @@ public:
 	void update(float deltaTime);
 	void processInput(float deltaTime);
 
+	bool getIsPlayerDead(void) { return isPlayerDead; }
+
 	bool checkCollision(creatureClass *creature, bool&);
 
 	bool getKeys(int i) { return keys[i]; }
@@ -44,7 +46,7 @@ public:
 private:
 	
 	bool keys[1024], keysPressed[1024];
-	bool isDead;
+	bool isPlayerDead;
 	float spawnTimer, projectileTimer;
 	glm::vec2 renderingPort;
 	float animationTime;

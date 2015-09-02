@@ -11,7 +11,7 @@ gameClass::gameClass()
 	activeProjectile = new projectileClass();
 	renderingPort = { 0.0f, 0.0f };
 	animationTime = 0.0f;
-	isDead = false;
+	isPlayerDead = false;
 }
 
 gameClass::~gameClass()
@@ -157,6 +157,14 @@ void gameClass::render()
 	textRenderer->DrawText("Level:", Constants::windowWidth - 149, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 65, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 64, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+
+
+	// Game Over Message
+	if(isPlayerDead)
+	{
+		textRenderer->DrawText("GAME OVER", 190, Constants::windowHeight - 330, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		textRenderer->DrawText("GAME OVER", 187, Constants::windowHeight - 327, 1.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	}
 }
 
 
@@ -179,11 +187,11 @@ void gameClass::update(float deltaTime) {
 	
 	if(player->getHealth() <= 0)
 	{
-		if(!isDead)
+		if(!isPlayerDead)
 		{
 			animationTime = 0.0f;
 			player->resetIndex();
-			isDead = true;
+			isPlayerDead = true;
 			player->setCurrentAction("tipping over");
 		}
 
@@ -233,7 +241,7 @@ void gameClass::moveEnemies(float deltaTime)
 
 		glm::vec2 oldPos = enemies[i].tile.getPos();	
 
-		if (enemies[i].tile.isOnScreen(renderingPort) /*&& player->getHealth() > 0*/) 
+		if (enemies[i].tile.isOnScreen(renderingPort) && !isPlayerDead) 
 		{
 			float velocity = enemies[i].getSpeed() * deltaTime;			
 			float xFactor = 0.0f, yFactor = 0.0f;
@@ -347,79 +355,81 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	int nrKeys = 0;	
 	animationTime += deltaTime;
 
-	if (keys[GLFW_KEY_UP]) {
-		newPos ={newPos.x + 0, newPos.y + velocity*-1 };
-		rotat += 90;
-		nrKeys++;		
-	}
+	if(!isPlayerDead)
+	{
+		if (keys[GLFW_KEY_UP]) {
+			newPos ={newPos.x + 0, newPos.y + velocity*-1 };
+			rotat += 90;
+			nrKeys++;		
+		}
 	
-	if (keys[GLFW_KEY_DOWN]) {		
-		newPos = { newPos.x + 0, newPos.y + velocity*1 };
-		rotat += 270;
-		nrKeys++;		
-	}
-
-	if (keys[GLFW_KEY_RIGHT]) {
-		newPos = { newPos.x + velocity, newPos.y + 0 };
-		keys[GLFW_KEY_UP] ? rotat += 0 : rotat += 360;
-		nrKeys++;
-	}
-		
-	if (keys[GLFW_KEY_LEFT]) {
-		newPos = { newPos.x + velocity * -1, newPos.y + 0 };
-		rotat += 180;
-		nrKeys++;		
-	}
-
-	if (nrKeys > 0) { // if an arrow key has been pressed;
-		
-		float oldRotation = player->tile.getRotation(); // get current rotation
-		player->tile.setRotation(rotat / nrKeys); // determine new rotation based on which combination of arrow keys have been pressed
-
-		if (oldRotation != player->tile.getRotation()){ // if rotation has changed
-			player->resetIndex();						//reset the animation index and set animation action to walking
-			player->setCurrentAction("walking");
-			animationTime = 0.0f;
-			
+		if (keys[GLFW_KEY_DOWN]) {		
+			newPos = { newPos.x + 0, newPos.y + velocity*1 };
+			rotat += 270;
+			nrKeys++;		
 		}
-		else if (animationTime >= Constants::animationFrameTime) {	// if rotation has not changed and if it is time for the next animation
-			animationTime = 0.0f;
-			player->increaseIndex();			
-		}		
-	}
-	else if (player->getCurrentAction() == "attack" && (animationTime >= Constants::animationFrameTime)) {
-		animationTime = 0.0f;
-		player->increaseIndex();
+
+		if (keys[GLFW_KEY_RIGHT]) {
+			newPos = { newPos.x + velocity, newPos.y + 0 };
+			keys[GLFW_KEY_UP] ? rotat += 0 : rotat += 360;
+			nrKeys++;
+		}
 		
-	}
+		if (keys[GLFW_KEY_LEFT]) {
+			newPos = { newPos.x + velocity * -1, newPos.y + 0 };
+			rotat += 180;
+			nrKeys++;		
+		}
 
-	player->tile.adjustPos(newPos);
-	bool eraseFlag = false;
+		if (nrKeys > 0) { // if an arrow key has been pressed;
+		
+			float oldRotation = player->tile.getRotation(); // get current rotation
+			player->tile.setRotation(rotat / nrKeys); // determine new rotation based on which combination of arrow keys have been pressed
 
-	if (checkCollision(player, eraseFlag))
-		player->tile.resetPos(oldPos);
-	else {// if player does not collide with anything
-		if (player->tile.getPos().x >= Constants::windowWidth / 2 && player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2)
-			renderer->setCam(newPos.x * -1.0f, 0.0f);
-		if (player->tile.getPos().y >= Constants::windowHeight / 2 && player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2)
-			renderer->setCam(0.0f, newPos.y * -1.0f);
-	}
-
-	if (keys[GLFW_KEY_SPACE] && !keysPressed[GLFW_KEY_SPACE]) {		
-				
-		setKeysPressed(GLFW_KEY_SPACE, true);
-
-		if (projectileTimer > Constants::fireRate) {
-			fireProjectile();
-			if (player->getCurrentAction() != "attack") { // if attack animation is not playing allready
-				player->setCurrentAction("attack");
-				player->resetIndex();
+			if (oldRotation != player->tile.getRotation()){ // if rotation has changed
+				player->resetIndex();						//reset the animation index and set animation action to walking
+				player->setCurrentAction("walking");
 				animationTime = 0.0f;
+			
 			}
-			projectileTimer = 0;
+			else if (animationTime >= Constants::animationFrameTime) {	// if rotation has not changed and if it is time for the next animation
+				animationTime = 0.0f;
+				player->increaseIndex();			
+			}		
 		}
-	}			
+		else if (player->getCurrentAction() == "attack" && (animationTime >= Constants::animationFrameTime)) {
+			animationTime = 0.0f;
+			player->increaseIndex();
 		
+		}
+
+		player->tile.adjustPos(newPos);
+		bool eraseFlag = false;
+
+		if (checkCollision(player, eraseFlag))
+			player->tile.resetPos(oldPos);
+		else {// if player does not collide with anything
+			if (player->tile.getPos().x >= Constants::windowWidth / 2 && player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2)
+				renderer->setCam(newPos.x * -1.0f, 0.0f);
+			if (player->tile.getPos().y >= Constants::windowHeight / 2 && player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2)
+				renderer->setCam(0.0f, newPos.y * -1.0f);
+		}
+
+		if (keys[GLFW_KEY_SPACE] && !keysPressed[GLFW_KEY_SPACE]) {		
+				
+			setKeysPressed(GLFW_KEY_SPACE, true);
+
+			if (projectileTimer > Constants::fireRate) {
+				fireProjectile();
+				if (player->getCurrentAction() != "attack") { // if attack animation is not playing allready
+					player->setCurrentAction("attack");
+					player->resetIndex();
+					animationTime = 0.0f;
+				}
+				projectileTimer = 0;
+			}
+		}			
+	}	
 }
 
 bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   // *creature can be used for either player or enemy
