@@ -42,6 +42,13 @@ void playerClass::Draw(SpriteRenderer & renderer)
 	creatureClass::Draw(renderer);
 }
 
+void playerClass::incrementKeys(int i)
+{
+	if (i < 0 && keys > 0) // do not decrease key count below zero
+		keys += i;
+	else if (i > 0)
+		keys += i;
+}
 
 std::string playerClass::getPlayerType(void)
 {

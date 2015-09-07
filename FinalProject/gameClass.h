@@ -19,6 +19,7 @@
 #include "TextRenderer.h"
 #include "AStarTree.h"
 #include "Constants.h"
+#include <ctime>
 
 
 class gameClass
@@ -53,7 +54,9 @@ private:
 	float animationTime;
 	irrklang::ISoundEngine *SoundEngine;
 
-	mapClass mapLevel1;
+	vector <mapClass> mapLevel;
+	int currentLevel = 0;
+	bool newLevel = false;
 
 	TextRenderer *textRenderer;
 	SpriteRenderer *renderer;
@@ -65,7 +68,7 @@ private:
 	void spawnEnemies();
 	void moveEnemies(float deltaTime);
 	
-	void playerPickedUpItem(mapElementClass item);
+	bool playerPickedUpItem(mapElementClass item);
 
 	void fireProjectile();
 	void moveProjectiles(float deltaTime);

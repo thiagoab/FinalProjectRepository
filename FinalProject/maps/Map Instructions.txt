@@ -1,0 +1,13 @@
+. - empty tile
+d - horizontal door
+D - vertical door
+e - entrance
+f - food
+k - key
+s - enemy spawn point
+t - treasure
+w - wall
+x - exit
+
+* Map must be exactly 42 rows and 44 columns
+* Dont put entrance close to edge of map (camera wont work properly)

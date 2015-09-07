@@ -59,7 +59,7 @@ int main()
 		deltaTime = currentFrameTime - prevFrameTime;
 		prevFrameTime = currentFrameTime;
 
-		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+		// Check if any events have been activiated (key pressed) and call corresponding response functions
 		glfwPollEvents();
 		gauntlet.processInput(deltaTime);
 		
@@ -83,7 +83,6 @@ int main()
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	//std::cout << key << std::endl;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (key >= 0 && key < 1024) {

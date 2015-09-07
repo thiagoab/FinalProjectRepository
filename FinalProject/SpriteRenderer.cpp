@@ -1,41 +1,23 @@
 #include "SpriteRenderer.h"
+#include "Constants.h"
 
 
-SpriteRenderer::SpriteRenderer(Shader &shader)
+SpriteRenderer::SpriteRenderer(Shader &shader, glm::vec2 playerPos, glm::vec2 playerSize)
 {
 	this->shader = shader;
 	this->initRenderData();
-	camX = 0.0f, camY = 0.0f;
+	resetCam(playerPos, playerSize);
+}
 
-	cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+void SpriteRenderer::resetCam(glm::vec2 playerPos, glm::vec2 playerSize)
+{
+	camX = 0 - playerPos.x + Constants::windowWidth / 2 - playerSize.x / 2;
+	camY = 0 - playerPos.y + Constants::windowHeight / 2 - playerSize.y / 2;
 }
 
 SpriteRenderer::~SpriteRenderer()
 {
 	glDeleteVertexArrays(1, &this->quadVAO);
-}
-
-
-void SpriteRenderer::camera() {
-	
-
-	//glm::mat4 view;
-	//view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	//// Get the uniform locations
-	//GLint viewLoc = glGetUniformLocation(shader.ID, "view");
-	//// Pass the matrices to the shader
-	//glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-
-	//glm::mat4 projection;
-	//projection = glm::perspective(45.0f, (GLfloat)800 / (GLfloat)600, 1.0f, 100.0f);
-	//GLint projLoc = glGetUniformLocation(shader.ID, "projection");
-	//glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	//glMatrixMode(GL_MODELVIEW);
-	//glTranslatef(100, 100, -3);
-	
 }
 
 void SpriteRenderer::DrawSprite(textureClass &texture, glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec3 color)

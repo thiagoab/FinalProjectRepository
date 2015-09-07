@@ -12,6 +12,8 @@ gameClass::gameClass()
 	renderingPort = { 0.0f, 0.0f };
 	animationTime = 0.0f;
 	isPlayerDead = false;
+
+	srand(time(NULL));
 }
 
 gameClass::~gameClass()
@@ -25,7 +27,7 @@ void gameClass::initializeGame()
 {
 	SoundEngine = irrklang::createIrrKlangDevice();
 
-	SoundEngine->play2D("audio/02_-_Gauntlet_-_NES_-_Stages_1.ogg", GL_FALSE);
+	SoundEngine->play2D("audio/02_-_Gauntlet_-_NES_-_Stages_1.ogg", GL_TRUE);
 
 	resourceManagerClass::LoadShader("shaders/sprite.vs", "shaders/sprite.frag", nullptr, "sprite");
 	resourceManagerClass::LoadShader("shaders/text.vs", "shaders/text.frag", nullptr, "text");
@@ -39,32 +41,47 @@ void gameClass::initializeGame()
 	resourceManagerClass::GetShader("text").Use().SetInteger("text", 0);
 	resourceManagerClass::GetShader("text").SetMatrix4("projection", projectionText);
 
-
+	//load textures for objects without animation
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Stone Block Tall.png", GL_TRUE, "wall");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Dirt Block2.png", GL_TRUE, "floor");	
+	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Wall Block.png", GL_TRUE, "door");
+	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Wall Block Top.png", GL_TRUE, "doorTop");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Key.png", GL_TRUE, "key");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Heart.png", GL_TRUE, "food");
 	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Gem Blue.png", GL_TRUE, "treasure");
+	resourceManagerClass::LoadTexture("textures/PlanetCute PNG/Selector.png", GL_TRUE, "entrance");
 	resourceManagerClass::LoadTexture("textures/spawn.png", GL_TRUE, "spawn");
-		
-	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"));
-	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));
 	
-	mapLevel1.loadMapInfo("maps/map2.txt");
-		                       
+	//load map information from ascii files
+	for (int i = 0; i < Constants::nrOfMaps; i++) {
+		mapClass tempMap;		
+		string mapPath = "maps/map" + to_string(i);
+
+		mapPath = mapPath + ".txt";
+		tempMap.loadMapInfo(mapPath);
+		mapLevel.push_back(tempMap);
+		
+	}
+
+	//create player object
+	glm::vec2 pos = mapLevel[0].getEntrancePos();
 	player = new playerClass("dwarf", 										// creature name
 		2,																	// nr of actions which require animation
 		resourceManagerClass::GetTexture("player"),	// texture    
 		100,																// health
 		Constants::playerSpeed,												// speed
 		7,																	// attack power
-		{ Constants::windowWidth / 2, Constants::windowHeight / 2 },		// starting position
+		{ pos.x - 45, pos.y - 30 },		// starting position
 		{ 120, 110 },														// size in pixels (width, height)
 		0,																	// rotation (0 - 360 degrees, in 45 degree increments
-		{ 10, 80 },															// collisionOffsetXY : adjustment to collision box (left upper corner)
-		{ -10, 0 },															// collisionOffsetZW : adjustment to collision box (right lower corner)
+		{ 30, 70 },															// collisionOffsetXY : adjustment to collision box (left upper corner)
+		{ -30, 0 },														// collisionOffsetZW : adjustment to collision box (right lower corner)
 		{ 1, 1, 1 });														// color
 		
+	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"), player->tile.getPos(), player->tile.getSize());
+	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));	
+	
+	//load textures for objects with animation. Second parameter specifies number of actions which are animated
 	loadCreatureTextures("dwarf", 3);
 	loadCreatureTextures("axe", 1);
 	loadCreatureTextures("skull", 1);
@@ -111,27 +128,25 @@ void gameClass::loadCreatureTextures(char creature[], int nrActions) {
  }
 
 void gameClass::render()
-{
-	//renderer->DrawSprite()
-	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(0, 0), glm::vec2(width, height));
-	//renderer->camera();
+{		
+	//render map background / map items
+	mapLevel[currentLevel].Draw(*renderer);
 
-	
-	mapLevel1.Draw(*renderer);
+	//render player
 	player->Draw(*renderer);
 
-	for (int i = 0; i <enemies.size(); i++) {
-		if (enemies[i].tile.isOnScreen(renderingPort))
-		enemies[i].Draw(*renderer);
+	//render enemies
+	for (auto enemy : enemies) {
+		if (enemy.tile.isOnScreen(renderingPort))
+			 enemy.Draw(*renderer);
 	}
 
-	for (int i = 0; i <projectiles.size(); i++) {		
-		projectiles[i].Draw(*renderer);
+	//render active projectiles, eg axes being thrown by the player
+	for (auto i : projectiles) {
+		i.Draw(*renderer);
 	}
-	//renderer->DrawSprite(resourceManagerClass::GetTexture("floor"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	// Text Rendering
-
 	// Player type
 	textRenderer->DrawText(player->getPlayerType(), 10, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText(player->getPlayerType(), 11, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
@@ -147,22 +162,19 @@ void gameClass::render()
 	textRenderer->DrawText("Health:", 331, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	textRenderer->DrawText(std::to_string(player->getHealth()), 436, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText(std::to_string(player->getHealth()), 437, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-
-
+	
 	// Keys
 	textRenderer->DrawText("Keys:", 510, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText("Keys:", 511, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	textRenderer->DrawText(std::to_string(player->getKeys()), 583, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText(std::to_string(player->getKeys()), 584, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-
-
+	
 	// Level
 	textRenderer->DrawText("Level:", Constants::windowWidth - 150, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	textRenderer->DrawText("Level:", Constants::windowWidth - 149, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 65, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
-	textRenderer->DrawText(std::to_string(mapLevel1.getLevel()), Constants::windowWidth - 64, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
-
-
+	textRenderer->DrawText(std::to_string(currentLevel + 1), Constants::windowWidth - 65, Constants::windowHeight - 30, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textRenderer->DrawText(std::to_string(currentLevel + 1), Constants::windowWidth - 64, Constants::windowHeight - 29, 0.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	
 	// Game Over Message
 	if(isPlayerDead)
 	{
@@ -174,6 +186,16 @@ void gameClass::render()
 
 void gameClass::update(float deltaTime) {
 		
+	if (newLevel)
+		{
+		currentLevel++;
+		enemies.clear();
+		projectiles.clear();
+		player->tile.resetPos(mapLevel[currentLevel].getEntrancePos());
+		renderer->resetCam(player->tile.getPos(), player->tile.getSize());
+		newLevel = false;
+	}
+
 	renderer->getCam(renderingPort.x, renderingPort.y);
 	renderingPort *= -1;
 
@@ -212,31 +234,48 @@ void gameClass::update(float deltaTime) {
 
 void gameClass::spawnEnemies()
 {
-	for (int i = 0; i <mapLevel1.spawns.size(); i++) {
+	for (int i = 0; i < mapLevel[currentLevel].spawns.size(); i++) {
+		int counter = 0;
 		
-		if (mapLevel1.spawns[i].tile.isOnScreen(renderingPort)) {
+		if (mapLevel[currentLevel].spawns[i].tile.isOnScreen(renderingPort)) {
 			
-			int spawnX = mapLevel1.spawns[i].tile.getPos().x;
-			int spawnY = mapLevel1.spawns[i].tile.getPos().y;		
-				
-			glm::vec2 size(mapLevel1.getTileWidth(), mapLevel1.getTileHeigth());				
-				
-			enemyClass enemy("skull", 						// creature name
-				1,											// nr of actions which require animation
-				resourceManagerClass::GetTexture("skull"), // sprite
-				Constants::enemyHealth,									// health
-				Constants::enemySpeed,									// speed
-				Constants::enemyPower,									// attack power
-				{ spawnX - 35, spawnY },								// starting position
-				{ size.x+10 , size.y+10 },								// size
-				270,												// rotation
-				{ 8, 30 },												// collisionOffsetXY
-				{ -8, 5 },												// collisionOffsetZW
-				{1,1,1});												// color
-				
-			enemies.push_back(enemy);
+			bool eraseFlag = true;
+			while (eraseFlag == true && counter < 10) { // try to spawn an enemy 10 times, if not possible (because of collisions), then stop attempt to spawn	
 
-			SoundEngine->play2D("audio/Sound Effect (3).wav", GL_FALSE);
+				int spawnX = mapLevel[currentLevel].spawns[i].tile.getPos().x;
+				int spawnY = mapLevel[currentLevel].spawns[i].tile.getPos().y;
+				glm::vec2 size(mapLevel[currentLevel].getTileWidth(), mapLevel[currentLevel].getTileHeigth());
+
+				enemyClass enemy("skull", 									// creature name
+					1,														// nr of actions which require animation
+					resourceManagerClass::GetTexture("skull"),				// sprite
+					Constants::enemyHealth,									// health
+					Constants::enemySpeed,									// speed
+					Constants::enemyPower,									// attack power
+					{ spawnX + 10, spawnY },								// starting position
+					{ size.x + 10 , size.y + 10 },								// size
+					270,													// rotation
+					{ 8, 30 },												// collisionOffsetXY
+					{ -8, 5 },												// collisionOffsetZW
+					{ 1,1,1 }													// color
+				);
+
+				eraseFlag = false;
+				for (int i = 0; i < enemies.size(); i++) {
+
+					if (enemy.tile == enemies[i].tile) {
+						eraseFlag = true;
+						counter++;
+						break;
+
+					}
+
+				}
+				if (!eraseFlag) {
+					enemies.push_back(enemy);
+					//SoundEngine->play2D("audio/Sound Effect (3).wav", GL_FALSE);
+				}
+			}
 		}
 	}
 }
@@ -255,7 +294,7 @@ void gameClass::moveEnemies(float deltaTime)
 
 			// calculations which let enemy approach player in direct line rather than at 45 degree angles
 			float distanceX, distanceY, distance, timeD;
-			distanceX = player->tile.getPos().x - oldPos.x;
+			distanceX = player->tile.getPos().x + 20- oldPos.x;
 			distanceY = player->tile.getPos().y + 40 - oldPos.y;
 			distance = sqrt( distanceX * distanceX + distanceY * distanceY);
 			timeD = distance / velocity;
@@ -415,12 +454,19 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 
 		if (checkCollision(player, eraseFlag))
 			player->tile.resetPos(oldPos);
-		else {// if player does not collide with anything
-			if (player->tile.getPos().x >= Constants::windowWidth / 2 && player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2)
+		else {// if player does not collide with anything, adjust camera position
+			if (player->tile.getPos().x >= Constants::windowWidth / 2 - player->tile.getSize().x / 2 
+				&& player->tile.getPos().x <= Constants::mapWidth - Constants::windowWidth / 2 - player->tile.getSize().x / 2) 
+			{				
 				renderer->setCam(newPos.x * -1.0f, 0.0f);
-			if (player->tile.getPos().y >= Constants::windowHeight / 2 && player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2)
+			}
+
+			if (player->tile.getPos().y >= Constants::windowHeight / 2 - player->tile.getSize().y / 2
+				&& player->tile.getPos().y <= Constants::mapHeight - Constants::windowHeight / 2 - player->tile.getSize().y / 2)
+			{
 				renderer->setCam(0.0f, newPos.y * -1.0f);
-		}
+			}
+		}	
 
 		if (keys[GLFW_KEY_SPACE] && !keysPressed[GLFW_KEY_SPACE]) {		
 				
@@ -440,39 +486,59 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 	}	
 }
 
-bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   // *creature can be used for either player or enemy
+bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   // *creature can be used for either player, enemy or projectile
 
-	for (int i = 0; i < mapLevel1.walls.size(); i++) {  // check for collision with walls
-		if (creature->tile == mapLevel1.walls[i].tile) { // operator == overload			
+	for (int i = 0; i < mapLevel[currentLevel].walls.size(); i++) {  // check for collision with walls
+		if (creature->tile == mapLevel[currentLevel].walls[i].tile) { // operator == overload			
 			return true;			
 		}
 	}
 
-	for (int i = 0; i < mapLevel1.pickups.size(); i++) { // check for collision with pickup items: food, keys and treasure
-		if (mapLevel1.pickups[i].tile == creature->tile) { // operator == overload	
+	for (int i = 0; i < mapLevel[currentLevel].doors.size(); i++) {  // check for collision with doors
+		for (int j = 0; j < mapLevel[currentLevel].doors[i].size(); j++) {
 			
-			if (creature != player) // if enemy collides with pickup item
+				if (creature->tile == mapLevel[currentLevel].doors[i][j].tile) { // operator == overload			
+				
+					if (creature == player && player->getKeys() > 0) { // if player collides with door and if he has a key
+					player->incrementKeys(-1);
+					mapLevel[currentLevel].doors.erase(mapLevel[currentLevel].doors.begin() + i);
+					return false;
+					
+				}
+				else
+					return true;				
+			}			
+		}		
+	}
+
+	for (int i = 0; i < mapLevel[currentLevel].pickups.size(); i++) { // check for collision with pickup items: food, keys and treasure
+		if (mapLevel[currentLevel].pickups[i].tile == creature->tile) { // operator == overload	
+			
+			if (creature != player) // if enemy or projectile collides with pickup item
 				return true;
 
-			else if (creature == player) {  // else if it was player who collided with item
-				playerPickedUpItem(mapLevel1.pickups[i]);
-				mapLevel1.pickups.erase(mapLevel1.pickups.begin() + i);
+			else if (creature == player) {  // else if it was player who collided with item				
+				bool destroy = playerPickedUpItem(mapLevel[currentLevel].pickups[i]);
+				if (destroy)
+					mapLevel[currentLevel].pickups.erase(mapLevel[currentLevel].pickups.begin() + i);
 				break;
 			}
 		}
 	}
 
-	for (int i = 0; i < mapLevel1.spawns.size(); i++) {  // check for collision with spawn points
-		if (creature->tile == mapLevel1.spawns[i].tile) { // operator == overload
-			if (creature == activeProjectile)
-				mapLevel1.spawns.erase(mapLevel1.spawns.begin() + i);
-			return true;			
+	if (creature == player || creature == activeProjectile){ // enemies do not collide with spawn points
+		for (int i = 0; i < mapLevel[currentLevel].spawns.size(); i++) {  // check for collision with spawn points
+			if (creature->tile == mapLevel[currentLevel].spawns[i].tile) { // operator == overload
+				if (creature == activeProjectile)
+					mapLevel[currentLevel].spawns.erase(mapLevel[currentLevel].spawns.begin() + i);
+				return true;
+			}
 		}
 	}
 
 	for (int i = 0; i < enemies.size(); i++) {		// check for collision with enemies if 1) player is moving and 2) an enemy is moving 3) bullet hits enemy		
 		
-		if (creature != &(enemies[i]) && creature->tile == enemies[i].tile )  { // check that enemy does not collide with itself	
+		if (creature != &(enemies[i]) && creature->tile == enemies[i].tile )  { // do not check for collision of enemy object with itself	
 			if (creature == player) {
 				player->incrementHealth(-10);
 				enemies.erase(enemies.begin() + i);
@@ -485,33 +551,44 @@ bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   //
 		}
 	}
 
-	if (creature != player && creature != activeProjectile)						// check for collision with player if enemy is moving
+	if (creature != player && creature != activeProjectile) {					// check for collision with player if enemy is moving
 		if (creature->tile == player->tile) {
 			player->incrementHealth(-10);
 			eraseFlag = true;						// set flag to erase enemy from vector
 			return true;
 		}
+	}
 
 	return false;
 }
 
-void gameClass::playerPickedUpItem(mapElementClass item)
+bool gameClass::playerPickedUpItem(mapElementClass item)
 {
 	switch (item.content) {
 	case food: // food
 		player->incrementHealth(Constants::foodValue);
 		SoundEngine->play2D("audio/Sound Effect (10).wav", GL_FALSE);
+		return true;
 		break;
 
 	case keyTile: // keyTile
 		player->incrementKeys(1);
 		SoundEngine->play2D("audio/Sound Effect (13).wav", GL_FALSE);
+		return true;
 		break;
 
 	case treasure: // treasure
 		player->increaseTreasure(Constants::treasureValue);
 		SoundEngine->play2D("audio/Sound Effect (34).wav", GL_FALSE);
+		return true;
 		break;
+
+	case mapExit: // exit
+		newLevel = true;
+
+	case mapEntrance:
+		return false;
+
 	}
 }
 
@@ -520,7 +597,7 @@ void gameClass::fireProjectile()
 	int spawnX = player->tile.getPos().x;
 	int spawnY = player->tile.getPos().y;
 	
-	glm::vec2 size(mapLevel1.getTileWidth(), mapLevel1.getTileHeigth());
+	glm::vec2 size(mapLevel[currentLevel].getTileWidth(), mapLevel[currentLevel].getTileHeigth());
 
 	projectileClass projectileT("axe", 										// creature name
 		1,																	// nr of actions which require animation
@@ -531,8 +608,8 @@ void gameClass::fireProjectile()
 		{ spawnX+40 , spawnY+50 },						// starting position
 		{ size.x -10 , size.y -15 },				// size
 		player->tile.getRotation(),					// rotation
-		{ 0, 0 },									// collisionOffsetXY
-		{ 0, 0 },									// collisionOffsetZW
+		{ 20, 50 },									// collisionOffsetXY
+		{ -15, 0 },									// collisionOffsetZW
 		{ 0.6f, 0.6f, 0.6f });						// color
 
 		projectiles.push_back(projectileT);

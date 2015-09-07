@@ -25,7 +25,7 @@ public:
 
 	void Draw(SpriteRenderer& renderer);
 
-	void incrementKeys(int i) { keys += i; }
+	void incrementKeys(int i);
 	void incrementLives(int i) { lives += i; }
 	void incrementTreasure(int i) { treasure += i; }
 	void incrementKills() { kills += 1; }

@@ -12,6 +12,8 @@ namespace Constants
 	const static int mapHeight = 1495; // in pixels
 	const static int mapWidthInTiles = mapWidth / tileWidth;
 	const static int mapHeightInTiles = mapHeight / tileHeight;
+	const static int verticalOffset = 25;
+	const static int nrOfMaps = 3;
 	
 	// window constants
 	const static int windowWidth = 800; // in pixels

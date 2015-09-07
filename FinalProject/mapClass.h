@@ -25,10 +25,18 @@ public:
 	float getTileHeigth() { return tileHeight; }
 	int getLevel(void) { return level; }
 
+	int findFirstDoorPiece(int index);
+	int destroyDoor(int index);
+	bool isDoorAdjacent(glm::vec2 refPos, glm::vec2 pos, glm::vec2 size);
+
+	glm::vec2 getEntrancePos() { return entrancePos; }
+	glm::vec2 getExitPos() { return exitPos; }
+
 	vector<mapElementClass> walls;
 	vector<mapElementClass> floors;
 	vector<mapElementClass> pickups;
 	vector <spawnerClass> spawns;
+	vector< vector <mapElementClass> > doors;
 
 private:
 
@@ -36,4 +44,6 @@ private:
 	float tileHeight;	
 	float tileWidth;
 	int	level;
+	glm::vec2 entrancePos;
+	glm::vec2 exitPos;
 };
