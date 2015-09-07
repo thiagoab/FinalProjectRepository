@@ -13,6 +13,7 @@
 #include "SpriteRenderer.h"
 #include "resourceManagerClass.h"
 #include <glm\glm.hpp>
+#include "irrKlang\irrKlang.h"
 #include "spawnerClass.h"
 #include "projectileClass.h"
 #include "TextRenderer.h"
@@ -50,6 +51,7 @@ private:
 	float spawnTimer, projectileTimer;
 	glm::vec2 renderingPort;
 	float animationTime;
+	irrklang::ISoundEngine *SoundEngine;
 
 	mapClass mapLevel1;
 

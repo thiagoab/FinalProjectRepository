@@ -23,6 +23,10 @@ gameClass::~gameClass()
 
 void gameClass::initializeGame()
 {
+	SoundEngine = irrklang::createIrrKlangDevice();
+
+	SoundEngine->play2D("audio/02_-_Gauntlet_-_NES_-_Stages_1.ogg", GL_FALSE);
+
 	resourceManagerClass::LoadShader("shaders/sprite.vs", "shaders/sprite.frag", nullptr, "sprite");
 	resourceManagerClass::LoadShader("shaders/text.vs", "shaders/text.frag", nullptr, "text");
 
@@ -193,6 +197,7 @@ void gameClass::update(float deltaTime) {
 			player->resetIndex();
 			isPlayerDead = true;
 			player->setCurrentAction("tipping over");
+			SoundEngine->play2D("audio/Sound Effect (31).wav", GL_FALSE);
 		}
 
 		animationTime += deltaTime;
@@ -229,7 +234,9 @@ void gameClass::spawnEnemies()
 				{ -8, 5 },												// collisionOffsetZW
 				{1,1,1});												// color
 				
-			enemies.push_back(enemy);			
+			enemies.push_back(enemy);
+
+			SoundEngine->play2D("audio/Sound Effect (3).wav", GL_FALSE);
 		}
 	}
 }
@@ -427,6 +434,7 @@ void gameClass::processInput(float deltaTime) // deltaTime = time between frames
 					animationTime = 0.0f;
 				}
 				projectileTimer = 0;
+
 			}
 		}			
 	}	
@@ -492,14 +500,17 @@ void gameClass::playerPickedUpItem(mapElementClass item)
 	switch (item.content) {
 	case food: // food
 		player->incrementHealth(Constants::foodValue);
+		SoundEngine->play2D("audio/Sound Effect (10).wav", GL_FALSE);
 		break;
 
 	case keyTile: // keyTile
 		player->incrementKeys(1);
+		SoundEngine->play2D("audio/Sound Effect (13).wav", GL_FALSE);
 		break;
 
 	case treasure: // treasure
 		player->increaseTreasure(Constants::treasureValue);
+		SoundEngine->play2D("audio/Sound Effect (34).wav", GL_FALSE);
 		break;
 	}
 }
@@ -525,7 +536,8 @@ void gameClass::fireProjectile()
 		{ 0.6f, 0.6f, 0.6f });						// color
 
 		projectiles.push_back(projectileT);
-	
+
+		SoundEngine->play2D("audio/Sound Effect (6).wav", GL_FALSE);	
 }
 
 void gameClass::moveProjectiles(float deltaTime)
