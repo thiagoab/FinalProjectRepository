@@ -59,6 +59,10 @@ char * creatureClass::determineFramesPerAction(char creature[], int act, int &nr
 		strcat(action, "tipping over ");
 		nrFrames = 10;
 		break;
+	case 3:
+		strcat(action, "been hit ");
+		nrFrames = 9;
+		break;
 	}
 
 	return action;
@@ -103,6 +107,14 @@ void creatureClass::increaseIndex() {
 		
 		if (frameIndex == nrFrames)
 			frameIndex--;	
+	}
+	else if (getCurrentAction() == "been hit") {
+		determineFramesPerAction(this->creature, 3, nrFrames);
+		if (frameIndex == nrFrames) 
+		{
+			strcpy(currentAction, "walking");
+			frameIndex = 0;
+		}
 	}
 	else {
 		determineFramesPerAction(this->creature, 1, nrFrames);

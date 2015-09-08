@@ -82,7 +82,7 @@ void gameClass::initializeGame()
 	textRenderer = new TextRenderer(resourceManagerClass::GetShader("text"));	
 	
 	//load textures for objects with animation. Second parameter specifies number of actions which are animated
-	loadCreatureTextures("dwarf", 3);
+	loadCreatureTextures("dwarf", 4);
 	loadCreatureTextures("axe", 1);
 	loadCreatureTextures("skull", 1);
 }
@@ -225,6 +225,17 @@ void gameClass::update(float deltaTime) {
 		animationTime += deltaTime;
 
 		if (animationTime >= Constants::animationFrameTime) 
+		{
+			animationTime = 0.0f;
+			player->increaseIndex();
+		}
+	}
+
+	if (player->getCurrentAction() == "been hit")
+	{
+		animationTime += deltaTime;
+
+		if (animationTime >= Constants::animationFrameTime)
 		{
 			animationTime = 0.0f;
 			player->increaseIndex();
@@ -500,6 +511,7 @@ bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   //
 				if (creature->tile == mapLevel[currentLevel].doors[i][j].tile) { // operator == overload			
 				
 					if (creature == player && player->getKeys() > 0) { // if player collides with door and if he has a key
+					SoundEngine->play2D("audio/Sound Effect (18).wav", GL_FALSE);
 					player->incrementKeys(-1);
 					mapLevel[currentLevel].doors.erase(mapLevel[currentLevel].doors.begin() + i);
 					return false;
@@ -540,6 +552,11 @@ bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   //
 		
 		if (creature != &(enemies[i]) && creature->tile == enemies[i].tile )  { // do not check for collision of enemy object with itself	
 			if (creature == player) {
+				if (player->getHealth() > 0)
+					SoundEngine->play2D("audio/Sound Effect (16).wav", GL_FALSE);
+				player->setCurrentAction("been hit");
+				player->resetIndex();
+				animationTime = 0.0f;
 				player->incrementHealth(-10);
 				enemies.erase(enemies.begin() + i);
 			}
@@ -553,6 +570,11 @@ bool gameClass::checkCollision( creatureClass *creature, bool &eraseFlag) {   //
 
 	if (creature != player && creature != activeProjectile) {					// check for collision with player if enemy is moving
 		if (creature->tile == player->tile) {
+			if(player->getHealth() > 0)
+				SoundEngine->play2D("audio/Sound Effect (16).wav", GL_FALSE);
+			player->setCurrentAction("been hit");
+			player->resetIndex();
+			animationTime = 0.0f;
 			player->incrementHealth(-10);
 			eraseFlag = true;						// set flag to erase enemy from vector
 			return true;
@@ -579,11 +601,12 @@ bool gameClass::playerPickedUpItem(mapElementClass item)
 
 	case treasure: // treasure
 		player->increaseTreasure(Constants::treasureValue);
-		SoundEngine->play2D("audio/Sound Effect (34).wav", GL_FALSE);
+		SoundEngine->play2D("audio/Sound Effect (12).wav", GL_FALSE);
 		return true;
 		break;
 
 	case mapExit: // exit
+		SoundEngine->play2D("audio/Sound Effect (34).wav", GL_FALSE);
 		newLevel = true;
 
 	case mapEntrance:
