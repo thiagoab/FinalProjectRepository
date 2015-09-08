@@ -22,6 +22,8 @@ namespace Constants
 
 	const static int playerSpeed = 150;
 	const static int playerAttackRange = 10;
+	const static int playerEntranceOffsetX = -45;
+	const static int playerEntranceOffsetY = -30;
 
 	const static int foodValue = 100;
 	const static int treasureValue = 100;

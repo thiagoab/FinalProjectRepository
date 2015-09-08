@@ -49,6 +49,7 @@ private:
 	
 	bool keys[1024], keysPressed[1024];
 	bool isPlayerDead;
+	bool playerWins = false;
 	float spawnTimer, projectileTimer;
 	glm::vec2 renderingPort;
 	float animationTime;

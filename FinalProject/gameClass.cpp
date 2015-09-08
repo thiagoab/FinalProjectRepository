@@ -63,7 +63,7 @@ void gameClass::initializeGame()
 		
 	}
 
-	//create player object
+	//create player object 
 	glm::vec2 pos = mapLevel[0].getEntrancePos();
 	player = new playerClass("dwarf", 										// creature name
 		2,																	// nr of actions which require animation
@@ -71,11 +71,11 @@ void gameClass::initializeGame()
 		100,																// health
 		Constants::playerSpeed,												// speed
 		7,																	// attack power
-		{ pos.x - 45, pos.y - 30 },		// starting position
+		{ pos.x + Constants::playerEntranceOffsetX, pos.y + Constants::playerEntranceOffsetY },	// starting position
 		{ 120, 110 },														// size in pixels (width, height)
 		0,																	// rotation (0 - 360 degrees, in 45 degree increments
 		{ 30, 70 },															// collisionOffsetXY : adjustment to collision box (left upper corner)
-		{ -30, 0 },														// collisionOffsetZW : adjustment to collision box (right lower corner)
+		{ -30, 0 },															// collisionOffsetZW : adjustment to collision box (right lower corner)
 		{ 1, 1, 1 });														// color
 		
 	renderer = new SpriteRenderer(resourceManagerClass::GetShader("sprite"), player->tile.getPos(), player->tile.getSize());
@@ -181,19 +181,31 @@ void gameClass::render()
 		textRenderer->DrawText("GAME OVER", 190, Constants::windowHeight - 330, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 		textRenderer->DrawText("GAME OVER", 187, Constants::windowHeight - 327, 1.5f, glm::vec3(0.0, 0.0f, 0.0f));
 	}
+
+	if (playerWins) {
+		textRenderer->DrawText("YOU WIN!", 190, Constants::windowHeight - 330, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		textRenderer->DrawText("YOU WIN!", 187, Constants::windowHeight - 327, 1.5f, glm::vec3(0.0, 0.0f, 0.0f));
+	}
 }
 
 
 void gameClass::update(float deltaTime) {
 		
-	if (newLevel)
-		{
-		currentLevel++;
-		enemies.clear();
-		projectiles.clear();
-		player->tile.resetPos(mapLevel[currentLevel].getEntrancePos());
-		renderer->resetCam(player->tile.getPos(), player->tile.getSize());
-		newLevel = false;
+	if (newLevel) {
+		if (currentLevel + 1 == Constants::nrOfMaps) {
+			playerWins = true;
+		}
+		else if (currentLevel + 1 < Constants::nrOfMaps) {
+
+			currentLevel++;
+			enemies.clear();
+			projectiles.clear();
+			int newPosX = mapLevel[currentLevel].getEntrancePos().x + Constants::playerEntranceOffsetX;
+			int newPosY = mapLevel[currentLevel].getEntrancePos().y + Constants::playerEntranceOffsetY;
+			player->tile.resetPos({ newPosX, newPosY });
+			renderer->resetCam(player->tile.getPos(), player->tile.getSize());
+			newLevel = false;
+		}
 	}
 
 	renderer->getCam(renderingPort.x, renderingPort.y);
